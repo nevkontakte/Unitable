@@ -71,4 +71,25 @@ public class TableModel {
 	public ArrayList<ForeignKeyModel> getForeignKeys() {
 		return foreignKeys;
 	}
+
+    @Override
+    public String toString() {
+        StringBuffer s = new StringBuffer();
+        s.append("Table name: "+this.tableName+'\n');
+        s.append("Columns:\n");
+        for(ColumnModel c : this.columns.values() ) {
+            s.append('\t'+c.toString()+'\n');
+        }
+        s.append("Primary keys:");
+        for(ColumnModel c : this.primaryKeys) {
+            s.append(' ' + c.getName());
+        }
+        s.append('\n');
+        s.append("Foreign keys:\n");
+        for(ForeignKeyModel fk : this.foreignKeys) {
+            s.append('\t'+fk.toString()+'\n');
+        }
+
+        return s.toString();
+    }
 }
