@@ -18,30 +18,52 @@ public class TableData {
 
 		Connection db = this.tableModel.getDb();
 		this.tableContents = new UnitableRowSet(db);
+		this.tableContents.setConcurrency(UnitableRowSet.CONCUR_UPDATABLE);
+		this.tableContents.setReadOnly(false);
 		this.tableContents.setCommand(this.buildSelectCommand());
 	}
 
 	public UnitableRowSet getTableContents(boolean joinFk) throws SQLException {
-        this.tableContents.executeOnce();
+		this.tableContents.executeOnce();
 		return this.tableContents;
 	}
 
-	private String buildSelectCommand() throws SQLException {
-        StringBuffer columnString = new StringBuffer();
-        Set<String> columns = this.tableModel.getColumns().keySet();
-        int fragmentCount = 0;
-        for(String column : columns) {
-            if(fragmentCount > 0) {
-                columnString.append(", ");
-            }
-            columnString.append(this.quoteIdentifier(column));
-            fragmentCount++;
-        }
-        return String.format("SELECT %s FROM %s;", columnString.toString(), this.quoteIdentifier(this.tableModel.getTableName()));
+	public TableModel getTableModel() {
+		return tableModel;
 	}
 
-    private String quoteIdentifier(String identifier) throws SQLException {
-        String quoteString = this.tableModel.getDb().getMetaData().getIdentifierQuoteString();
-        return quoteString+identifier+quoteString;
-    }
+	public int getRowCount() throws SQLException {
+		this.tableContents.executeOnce();
+		int backupRow = this.tableContents.getRow();
+
+		int rowCount = this.tableContents.last() ? this.tableContents.getRow() : 0;
+
+		// Restore position
+		if (backupRow == 0) {
+			this.tableContents.beforeFirst();
+		} else {
+			this.tableContents.absolute(backupRow);
+		}
+		return rowCount;
+	}
+
+	private String buildSelectCommand() throws SQLException {
+		StringBuffer columnString = new StringBuffer();
+		Set<String> columns = this.tableModel.getColumns().keySet();
+		int fragmentCount = 0;
+		for (String column : columns) {
+			if (fragmentCount > 0) {
+				columnString.append(", ");
+			}
+			columnString.append(this.quoteIdentifier(column));
+			fragmentCount++;
+		}
+		// TODO: Add ORDER BY primary key
+		return String.format("SELECT %s FROM %s;", columnString.toString(), this.quoteIdentifier(this.tableModel.getTableName()));
+	}
+
+	private String quoteIdentifier(String identifier) throws SQLException {
+		String quoteString = this.tableModel.getDb().getMetaData().getIdentifierQuoteString();
+		return quoteString + identifier + quoteString;
+	}
 }

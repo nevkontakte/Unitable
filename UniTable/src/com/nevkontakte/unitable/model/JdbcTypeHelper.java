@@ -1,6 +1,8 @@
 package com.nevkontakte.unitable.model;
 
 import java.lang.reflect.Field;
+import java.math.BigInteger;
+import java.sql.Types;
 import java.util.HashMap;
 
 /**
@@ -30,5 +32,36 @@ public class JdbcTypeHelper {
 
 	public static String getStringByInt(int type) {
 		return intToStr.get(type);
+	}
+
+	public static Class<?> getClassByInt(int type) {
+		switch (type) {
+			case Types.BIGINT:
+				return BigInteger.class;
+			case Types.BOOLEAN:
+				return Boolean.class;
+			case Types.CHAR:
+				return Character.class;
+			case Types.DECIMAL:
+			case Types.NUMERIC:
+				return Number.class;
+			case Types.DOUBLE:
+				return Double.class;
+			case Types.FLOAT:
+				return Float.class;
+			case Types.INTEGER:
+				return Integer.class;
+			case Types.JAVA_OBJECT:
+				return Object.class;
+			case Types.NULL:
+				return null;
+			case Types.DATE:
+			case Types.LONGVARCHAR:
+			case Types.TIME:
+			case Types.VARCHAR:
+				return String.class;
+			default:
+				return null;
+		}
 	}
 }

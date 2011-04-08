@@ -16,7 +16,7 @@ public class ColumnModel {
 	private final int decimalDigits;
 	private final boolean nullable;
 	private final String defaultValue;
-	
+
 	public ColumnModel(ResultSet metaRow) throws SQLException {
 		this.name = metaRow.getString("COLUMN_NAME");
 		this.type = metaRow.getInt("DATA_TYPE");
@@ -29,15 +29,15 @@ public class ColumnModel {
 	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer(String.format("%s %s(%d", this.name, JdbcTypeHelper.getStringByInt(this.type), size));
-		if(this.decimalDigits > 0) {
+		if (this.decimalDigits > 0) {
 			buf.append(this.decimalDigits);
 		}
 		buf.append(')');
-		if(!this.nullable) {
+		if (!this.nullable) {
 			buf.append(" NOT NULL");
 		}
-		if(this.defaultValue != null) {
-			buf.append(" DEFAULT '"+this.defaultValue+"'");
+		if (this.defaultValue != null) {
+			buf.append(" DEFAULT '" + this.defaultValue + "'");
 		}
 		return buf.toString();
 	}

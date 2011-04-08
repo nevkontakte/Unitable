@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * User: aleks
@@ -16,7 +17,7 @@ public class TableModel {
 	private final Connection db;
 	protected final String tableName;
 
-	protected final HashMap<String, ColumnModel> columns = new HashMap<String, ColumnModel>();
+	protected final LinkedHashMap<String, ColumnModel> columns = new LinkedHashMap<String, ColumnModel>();
 	protected final ArrayList<ColumnModel> primaryKeys = new ArrayList<ColumnModel>();
 	protected final ArrayList<ForeignKeyModel> foreignKeys = new ArrayList<ForeignKeyModel>();
 
@@ -31,7 +32,7 @@ public class TableModel {
 
 		// Load columns
 		ResultSet colDesc = meta.getColumns(this.db.getCatalog(), null, this.tableName, null);
-		while(colDesc.next()) {
+		while (colDesc.next()) {
 			ColumnModel col = new ColumnModel(colDesc);
 			this.columns.put(col.getName(), col);
 		}
@@ -39,14 +40,14 @@ public class TableModel {
 
 		// Load primary keys
 		ResultSet pkDesc = meta.getPrimaryKeys(this.db.getCatalog(), null, this.tableName);
-		while(pkDesc.next()) {
+		while (pkDesc.next()) {
 			this.primaryKeys.add(this.columns.get(pkDesc.getString("COLUMN_NAME")));
 		}
 		pkDesc.close();
 
 		// Load foreign key model
 		ResultSet fkDesc = meta.getImportedKeys(this.db.getCatalog(), null, this.tableName);
-		while(fkDesc.next()) {
+		while (fkDesc.next()) {
 			this.foreignKeys.add(new ForeignKeyModel(fkDesc));
 		}
 		fkDesc.close();
@@ -72,24 +73,24 @@ public class TableModel {
 		return foreignKeys;
 	}
 
-    @Override
-    public String toString() {
-        StringBuffer s = new StringBuffer();
-        s.append("Table name: "+this.tableName+'\n');
-        s.append("Columns:\n");
-        for(ColumnModel c : this.columns.values() ) {
-            s.append('\t'+c.toString()+'\n');
-        }
-        s.append("Primary keys:");
-        for(ColumnModel c : this.primaryKeys) {
-            s.append(' ' + c.getName());
-        }
-        s.append('\n');
-        s.append("Foreign keys:\n");
-        for(ForeignKeyModel fk : this.foreignKeys) {
-            s.append('\t'+fk.toString()+'\n');
-        }
+	@Override
+	public String toString() {
+		StringBuffer s = new StringBuffer();
+		s.append("Table name: " + this.tableName + '\n');
+		s.append("Columns:\n");
+		for (ColumnModel c : this.columns.values()) {
+			s.append('\t' + c.toString() + '\n');
+		}
+		s.append("Primary keys:");
+		for (ColumnModel c : this.primaryKeys) {
+			s.append(' ' + c.getName());
+		}
+		s.append('\n');
+		s.append("Foreign keys:\n");
+		for (ForeignKeyModel fk : this.foreignKeys) {
+			s.append('\t' + fk.toString() + '\n');
+		}
 
-        return s.toString();
-    }
+		return s.toString();
+	}
 }
