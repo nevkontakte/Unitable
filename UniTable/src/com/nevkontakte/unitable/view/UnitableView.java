@@ -18,10 +18,13 @@ public class UnitableView extends JPanel {
 
 
 	public UnitableView(UnitableViewModel model) {
+		// Init components
 		this.model = model;
 		this.table = new JTable(this.model);
-		this.table.setAutoCreateRowSorter(true);
 		this.scroll = new JScrollPane(this.table);
+
+		// Configure components
+		this.table.setAutoCreateRowSorter(true);
 
 		// Configure GUI
 		this.setLayout(new BorderLayout());

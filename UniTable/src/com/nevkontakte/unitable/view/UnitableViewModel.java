@@ -51,6 +51,20 @@ public class UnitableViewModel extends AbstractTableModel {
 	}
 
 	@Override
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+		try {
+			UnitableRowSet rows = this.tableData.getTableContents(false);
+			rows.absolute(rowIndex + 1);
+			rows.updateObject(columnIndex + 1, aValue);
+			rows.updateRow();
+			System.out.println(aValue);
+		} catch (SQLException e) {
+			// TODO: Report error
+			e.printStackTrace();
+		}
+	}
+
+	@Override
 	public String getColumnName(int column) {
 		Iterator<ColumnModel> i = this.tableData.getTableModel().getColumns().values().iterator();
 		ColumnModel columnModel = null;
@@ -77,5 +91,9 @@ public class UnitableViewModel extends AbstractTableModel {
 		String columnName = this.getColumnName(columnIndex);
 		ColumnModel columnModel = this.tableData.getTableModel().getColumns().get(columnName);
 		return !this.tableData.getTableModel().getPrimaryKeys().contains(columnModel);
+	}
+
+	public TableData getTableData() {
+		return tableData;
 	}
 }
