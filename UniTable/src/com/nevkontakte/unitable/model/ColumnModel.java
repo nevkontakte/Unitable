@@ -1,7 +1,6 @@
 package com.nevkontakte.unitable.model;
 
-import com.mysql.jdbc.DatabaseMetaData;
-
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
