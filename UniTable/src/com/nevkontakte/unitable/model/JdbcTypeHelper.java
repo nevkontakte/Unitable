@@ -3,6 +3,7 @@ package com.nevkontakte.unitable.model;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.sql.Types;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -56,8 +57,9 @@ public class JdbcTypeHelper {
 			case Types.NULL:
 				return null;
 			case Types.DATE:
-			case Types.LONGVARCHAR:
 			case Types.TIME:
+				return Date.class;
+			case Types.LONGVARCHAR:
 			case Types.VARCHAR:
 				return String.class;
 			default:

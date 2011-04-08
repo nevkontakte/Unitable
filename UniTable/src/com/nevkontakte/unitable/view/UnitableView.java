@@ -11,6 +11,7 @@ import java.awt.*;
  * To change this template use File | Settings | File Templates.
  */
 public class UnitableView extends JPanel {
+	// TODO Add support of date editing
 	private final JScrollPane scroll;
 	private final JTable table;
 	private final UnitableViewModel model;
