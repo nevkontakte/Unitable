@@ -81,6 +81,10 @@ public class TableModel {
 		for (ColumnModel c : this.columns.values()) {
 			s.append('\t' + c.toString() + '\n');
 		}
+		s.append("Column comments:\n");
+		for (ColumnModel c : this.columns.values()) {
+			s.append('\t' + c.getName() + ": " + c.exportComments() + '\n');
+		}
 		s.append("Primary keys:");
 		for (ColumnModel c : this.primaryKeys) {
 			s.append(' ' + c.getName());

@@ -26,7 +26,8 @@ public class MainTest {
 		String user = "aleks";
 		String password = "mpwd2007";
 		Connection connection = DriverManager.getConnection(dburl, user, password);
-		TableModel model = new TableModel(connection, "people");
+		TableModel model = new TableModel(connection, "teacher_category");
+		System.out.println(model);
 		TableData data = new TableData(model);
 
 		// Show GUI

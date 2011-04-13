@@ -3,6 +3,7 @@ package com.nevkontakte.unitable.model;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 /**
  * User: aleks
@@ -16,6 +17,7 @@ public class ColumnModel {
 	private final int decimalDigits;
 	private final boolean nullable;
 	private final String defaultValue;
+	private final boolean hidden;
 
 	public ColumnModel(ResultSet metaRow) throws SQLException {
 		this.name = metaRow.getString("COLUMN_NAME");
@@ -24,6 +26,32 @@ public class ColumnModel {
 		this.decimalDigits = metaRow.getInt("DECIMAL_DIGITS");
 		this.nullable = (metaRow.getInt("NULLABLE") == DatabaseMetaData.columnNullable);
 		this.defaultValue = metaRow.getString("COLUMN_DEF");
+
+		// Parse magic remarks
+		String remarks = metaRow.getString("REMARKS");
+		boolean hidden = false;
+		while(remarks != null) {
+			Scanner s = new Scanner(remarks);
+			s.useDelimiter(";");
+
+			if(!s.hasNext()) {
+				break;
+			}
+
+			String magicTag = s.next();
+			if(!magicTag.toUpperCase().equals("UNITABLE")) {
+				break;
+			}
+
+			while(s.hasNext()) {
+				String tag = s.next();
+				if (tag.equals("HIDDEN")) {
+					hidden = true;
+				}
+			}
+			break;
+		}
+		this.hidden = hidden;
 	}
 
 	@Override
@@ -38,6 +66,15 @@ public class ColumnModel {
 		}
 		if (this.defaultValue != null) {
 			buf.append(" DEFAULT '" + this.defaultValue + "'");
+		}
+		return buf.toString();
+	}
+
+	public String exportComments() {
+		StringBuffer buf = new StringBuffer();
+		buf.append("UNITABLE;");
+		if(this.hidden) {
+			buf.append("HIDDEN;");
 		}
 		return buf.toString();
 	}
@@ -64,5 +101,9 @@ public class ColumnModel {
 
 	public String getDefaultValue() {
 		return defaultValue;
+	}
+
+	public boolean isHidden() {
+		return hidden;
 	}
 }
