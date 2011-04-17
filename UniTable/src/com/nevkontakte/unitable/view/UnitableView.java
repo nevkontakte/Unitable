@@ -15,6 +15,7 @@ public class UnitableView extends JPanel {
 	private final JScrollPane scroll;
 	private final JTable table;
 	private final UnitableViewModel model;
+	private final UnitableAddForm addForm;
 
 
 	public UnitableView(UnitableViewModel model) {
@@ -22,6 +23,7 @@ public class UnitableView extends JPanel {
 		this.model = model;
 		this.table = new JTable(this.model);
 		this.scroll = new JScrollPane(this.table);
+		this.addForm = new UnitableAddForm(this.model);
 
 		// Configure components
 		this.table.setAutoCreateRowSorter(true);
@@ -29,5 +31,6 @@ public class UnitableView extends JPanel {
 		// Configure GUI
 		this.setLayout(new BorderLayout());
 		this.add(this.scroll);
+		this.add(this.addForm, BorderLayout.SOUTH);
 	}
 }
