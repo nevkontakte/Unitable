@@ -57,6 +57,7 @@ public class UnitableAddForm extends JPanel{
 				}
 			});
 			field.setFocusLostBehavior(JFormattedTextField.PERSIST);
+			field.setPreferredSize(new Dimension(100, field.getPreferredSize().height));
 			inputs.add(field);
 			this.fields.put(columnModel.getName(), field);
 			tmpBorder = field.getBorder();
