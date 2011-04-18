@@ -96,7 +96,7 @@ public class UnitableViewModel extends AbstractTableModel {
 
 
 		public String getColumnName() {
-			return columnModel.getName();
+			return columnModel.getHumanName();
 		}
 
 		public Class<?> getColumnClass() {

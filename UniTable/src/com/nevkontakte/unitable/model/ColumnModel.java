@@ -18,6 +18,7 @@ public class ColumnModel {
 	private final boolean nullable;
 	private final String defaultValue;
 	private final boolean hidden;
+	private final String humanName;
 
 	public ColumnModel(ResultSet metaRow) throws SQLException {
 		this.name = metaRow.getString("COLUMN_NAME");
@@ -29,29 +30,52 @@ public class ColumnModel {
 
 		// Parse magic remarks
 		String remarks = metaRow.getString("REMARKS");
+
+		// Set initial values for extended parameters
 		boolean hidden = false;
-		while(remarks != null) {
+		String humanName = this.name;
+		
+		while(remarks != null) { // Using while here as IF + GOTO replacement =)
+			// Initialize parser
 			Scanner s = new Scanner(remarks);
 			s.useDelimiter(";");
 
+			// Check if parsing is possible and REMARKS are tagged with magic UNITABLE tag.
 			if(!s.hasNext()) {
 				break;
 			}
-
 			String magicTag = s.next();
 			if(!magicTag.toUpperCase().equals("UNITABLE")) {
 				break;
 			}
 
+			// Loop through tags
 			while(s.hasNext()) {
-				String tag = s.next();
+				// Get next tag
+				String tag = s.next(); // Tag name
+				String value = null; // Tag value for tags which have it
+
+				// Detect if tag has value
+				if(tag.indexOf('=') != -1) {
+					String[] parts = tag.split("=", 2);
+					tag = parts[0];
+					value = parts[1];
+				}
+
+				// Fix tag case
+				tag = tag.toUpperCase();
+				
 				if (tag.equals("HIDDEN")) {
 					hidden = true;
+				}
+				else if(tag.equals("HUMAN_NAME") && value != null) {
+					humanName = value;
 				}
 			}
 			break;
 		}
 		this.hidden = hidden;
+		this.humanName = humanName;
 	}
 
 	@Override
@@ -105,5 +129,9 @@ public class ColumnModel {
 
 	public boolean isHidden() {
 		return hidden;
+	}
+
+	public String getHumanName() {
+		return humanName;
 	}
 }
