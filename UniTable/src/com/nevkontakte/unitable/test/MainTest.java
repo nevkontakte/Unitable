@@ -19,6 +19,10 @@ import java.util.Locale;
  */
 public class MainTest {
 	public static void main(String[] args) throws SQLException {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+		}
 		Locale.setDefault(Locale.ENGLISH);
 		DriverManager.registerDriver(new OracleDriver());
 		String dburl = "jdbc:oracle:thin:@localhost:1521:XE";
@@ -26,7 +30,7 @@ public class MainTest {
 		String user = "aleks";
 		String password = "mpwd2007";
 		Connection connection = DriverManager.getConnection(dburl, user, password);
-		TableModel model = new TableModel(connection, "teacher_category");
+		TableModel model = new TableModel(connection, "people");
 		System.out.println(model);
 		TableData data = new TableData(model);
 
