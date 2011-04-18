@@ -46,7 +46,7 @@ public class UnitableAddForm extends JPanel{
 			if(columnModel.isHidden()) {
 				continue;
 			}
-			inputs.add(new JLabel(columnModel.getHumanName()));
+			inputs.add(new JLabel(columnModel.getHumanName()+':'));
 			JFormattedTextField field = new JFormattedTextField(this.getFormatByInt(columnModel.getType()));
 			field.addKeyListener(new KeyAdapter() {
 				@Override
