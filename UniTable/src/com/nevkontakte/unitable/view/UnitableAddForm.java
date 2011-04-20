@@ -94,13 +94,17 @@ public class UnitableAddForm extends JPanel{
 				HashMap<String, Object> values = new HashMap<String, Object>();
 				for(String columnName : fields.keySet()) {
 					values.put(columnName, fields.get(columnName).getValue());
-					fields.get(columnName).setValue("");
+					fields.get(columnName).setValue(null);
 				}
 
 				try {
 					model.getTableData().insertRow(values);
 					int newRow = model.getTableData().getTableContents(false).getRow()-1;
 					model.fireTableRowsInserted(newRow, newRow);
+					
+					for(String columnName : fields.keySet()) {
+						fields.get(columnName).setValue(null);
+					}
 				} catch (SQLException e1) {
 					JOptionPane.showMessageDialog(UnitableAddForm.this, "Row can't be added: "+e1.getLocalizedMessage(), "Edit error", JOptionPane.ERROR_MESSAGE);
 				}
