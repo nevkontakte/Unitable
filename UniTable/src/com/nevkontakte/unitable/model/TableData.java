@@ -13,6 +13,7 @@ import java.util.Set;
 public class TableData {
 	protected final TableModel tableModel;
 	private UnitableRowSet tableContents;
+	private UnitableRowSet tableJoinedContents;
 
 	public TableData(TableModel tableModel) throws SQLException {
 		this.tableModel = tableModel;
@@ -22,11 +23,18 @@ public class TableData {
 		this.tableContents.setConcurrency(UnitableRowSet.CONCUR_UPDATABLE);
 		this.tableContents.setReadOnly(false);
 		this.tableContents.setCommand(this.buildSelectCommand());
+		this.tableJoinedContents = new UnitableRowSet(db);
+		this.tableJoinedContents.setCommand(this.buildJoinedSelectCommand());
 	}
 
 	public UnitableRowSet getTableContents(boolean joinFk) throws SQLException {
-		this.tableContents.executeOnce();
-		return this.tableContents;
+		if(joinFk) {
+			this.tableJoinedContents.executeOnce();
+			return this.tableJoinedContents;
+		} else {
+			this.tableContents.executeOnce();
+			return this.tableContents;
+		}
 	}
 
 	public TableModel getTableModel() {
@@ -69,6 +77,43 @@ public class TableData {
 		}
 		// TODO: Add ORDER BY primary key
 		return String.format("SELECT %s FROM %s;", columnString.toString(), this.quoteIdentifier(this.tableModel.getTableName()));
+	}
+
+	private String buildJoinedSelectCommand() throws SQLException {
+		StringBuffer columnString = new StringBuffer();
+		StringBuffer joinString = new StringBuffer();
+
+		Set<String> columns = this.tableModel.getColumns().keySet();
+		int fragmentCount = 0;
+		for (String column : columns) {
+			if (fragmentCount > 0) {
+				columnString.append(", ");
+			}
+			columnString.append(this.quoteIdentifier(this.tableModel.getTableName()) + '.' + this.quoteIdentifier(column));
+			fragmentCount++;
+		}
+		
+		for(ForeignKeyModel fk : this.tableModel.getForeignKeys()) {
+			TableModel foreignTable = TableModel.get(this.tableModel.getDb(), fk.getPkTableName());
+			for(ColumnModel column : foreignTable.getColumns().values()) {
+				if(column.isHumanFk()) {
+					if (fragmentCount > 0) {
+						columnString.append(", ");
+					}
+
+					columnString.append(this.quoteIdentifier(fk.getPkTableName()) + '.' + this.quoteIdentifier(column.getName()));
+					
+					fragmentCount++;
+				}
+			}
+
+			joinString.append(" LEFT JOIN "+this.quoteIdentifier(fk.getPkTableName())+
+					" ON " + this.quoteIdentifier(fk.getFkTableName()) + '.' + this.quoteIdentifier(fk.getFkColumnName()) +
+					" = " + this.quoteIdentifier(fk.getPkTableName()) + '.' + this.quoteIdentifier(fk.getPkColumnName()));
+		}
+
+		// TODO: Add ORDER BY primary key
+		return String.format("SELECT %s FROM (%s) %s;", columnString.toString(), this.quoteIdentifier(this.tableModel.getTableName()), joinString.toString());
 	}
 
 	private String quoteIdentifier(String identifier) throws SQLException {

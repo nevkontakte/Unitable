@@ -73,6 +73,16 @@ public class TableModel {
 		return foreignKeys;
 	}
 
+	public ForeignKeyModel getForeignKey(ColumnModel column) {
+		for(ForeignKeyModel fk : this.foreignKeys) {
+			if(column.getName().equals(fk.getFkColumnName())) {
+				return fk;
+			}
+		}
+
+		return null;
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer s = new StringBuffer();
@@ -96,5 +106,15 @@ public class TableModel {
 		}
 
 		return s.toString();
+	}
+
+	private static HashMap<String, TableModel> models = new HashMap<String, TableModel>();
+	public static TableModel get(Connection db, String tableName) throws SQLException {
+		if(models.containsKey(tableName)) {
+			return models.get(tableName);
+		}
+		TableModel model = new TableModel(db, tableName);
+		models.put(tableName, model);
+		return model;
 	}
 }

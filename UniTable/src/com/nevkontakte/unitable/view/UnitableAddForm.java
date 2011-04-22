@@ -101,6 +101,7 @@ public class UnitableAddForm extends JPanel{
 					model.getTableData().insertRow(values);
 					int newRow = model.getTableData().getTableContents(false).getRow()-1;
 					model.fireTableRowsInserted(newRow, newRow);
+					model.getTableData().getTableContents(true).scheduleReExecution();
 					
 					for(String columnName : fields.keySet()) {
 						fields.get(columnName).setValue(null);

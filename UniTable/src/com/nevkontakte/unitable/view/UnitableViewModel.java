@@ -1,9 +1,6 @@
 package com.nevkontakte.unitable.view;
 
-import com.nevkontakte.unitable.model.ColumnModel;
-import com.nevkontakte.unitable.model.JdbcTypeHelper;
-import com.nevkontakte.unitable.model.TableData;
-import com.nevkontakte.unitable.model.UnitableRowSet;
+import com.nevkontakte.unitable.model.*;
 
 import javax.swing.table.AbstractTableModel;
 import java.sql.SQLException;
@@ -21,13 +18,20 @@ public class UnitableViewModel extends AbstractTableModel {
 	protected final TableData tableData;
 	protected final ArrayList<ViewColumnModel> columns = new ArrayList<ViewColumnModel>();
 
-	public UnitableViewModel(TableData tableData) {
+	public UnitableViewModel(TableData tableData) throws SQLException {
 		this.tableData = tableData;
 
 		int i = 0;
 		for(ColumnModel column : this.tableData.getTableModel().getColumns().values()) {
 			if(!column.isHidden()) {
-				this.columns.add(new DataViewColumnModel(i, column, this.tableData));
+				DbViewColumnModel viewModel;
+				ForeignKeyModel fk = this.tableData.getTableModel().getForeignKey(column);
+				if(fk != null) {
+					viewModel = new DbFkViewColumnModel(i, column, this.tableData);
+				} else {
+					viewModel = new DbViewColumnModel(i, column, this.tableData);
+				}
+				this.columns.add(viewModel);
 			}
 			i++;
 		}
@@ -83,12 +87,12 @@ public class UnitableViewModel extends AbstractTableModel {
 		public boolean isCellEditable(int rowIndex);
 	}
 
-	private static class DataViewColumnModel implements ViewColumnModel {
-		final int dataColumnIndex;
-		final ColumnModel columnModel;
-		final TableData tableData;
+	private static class DbViewColumnModel implements ViewColumnModel {
+		protected final int dataColumnIndex;
+		protected final ColumnModel columnModel;
+		protected final TableData tableData;
 
-		public DataViewColumnModel(int dataColumnIndex, ColumnModel columnModel, TableData tableData) {
+		public DbViewColumnModel(int dataColumnIndex, ColumnModel columnModel, TableData tableData) {
 			this.dataColumnIndex = dataColumnIndex;
 			this.columnModel = columnModel;
 			this.tableData = tableData;
@@ -134,6 +138,42 @@ public class UnitableViewModel extends AbstractTableModel {
 
 		public boolean isCellEditable(int rowIndex) {
 			return true;
+		}
+	}
+
+	private static class DbFkViewColumnModel extends DbViewColumnModel{
+		protected final ForeignKeyModel fk;
+		protected final ArrayList<String> fkCols = new ArrayList<String>();
+
+		public DbFkViewColumnModel(int dataColumnIndex, ColumnModel columnModel, TableData tableData) throws SQLException {
+			super(dataColumnIndex, columnModel, tableData);
+			this.fk = this.tableData.getTableModel().getForeignKey(columnModel);
+			TableModel foreignTable = TableModel.get(tableData.getTableModel().getDb(), this.fk.getPkTableName());
+			for(ColumnModel column : foreignTable.getColumns().values()) {
+				if(column.isHumanFk()) {
+					fkCols.add(column.getName());
+				}
+			}
+		}
+
+		public Class<?> getColumnClass() {
+			return String.class;
+		}
+
+		public Object getValueAt(int rowIndex) {
+			try {
+				UnitableRowSet data = this.tableData.getTableContents(true);
+				data.absolute(rowIndex + 1);
+				StringBuffer value = new StringBuffer();
+				for(String fkColumnName : this.fkCols) {
+					value.append(data.getString(fkColumnName));
+				}
+				return value.toString();
+			} catch (SQLException e) {
+				// TODO: handle nicely
+				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+				return null;
+			}
 		}
 	}
 }

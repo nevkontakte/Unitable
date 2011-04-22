@@ -24,4 +24,20 @@ public class ForeignKeyModel {
 	public String toString() {
 		return String.format("Foreign key: %s.%s, references %s.%s", this.fkColumnName, this.fkTableName, this.pkColumnName, this.pkTableName);
 	}
+
+	public String getFkTableName() {
+		return fkTableName;
+	}
+
+	public String getFkColumnName() {
+		return fkColumnName;
+	}
+
+	public String getPkTableName() {
+		return pkTableName;
+	}
+
+	public String getPkColumnName() {
+		return pkColumnName;
+	}
 }

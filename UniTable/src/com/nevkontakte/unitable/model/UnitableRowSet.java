@@ -47,4 +47,8 @@ public class UnitableRowSet extends JdbcRowSetImpl {
 	public boolean isExecuted() {
 		return isExecuted;
 	}
+
+	public void scheduleReExecution() {
+		this.isExecuted = false;
+	}
 }

@@ -30,7 +30,7 @@ public class MainTest {
 		String user = "aleks";
 		String password = "mpwd2007";
 		Connection connection = DriverManager.getConnection(dburl, user, password);
-		TableModel model = new TableModel(connection, "faculty");
+		TableModel model = TableModel.get(connection, "department");
 		System.out.println(model);
 		TableData data = new TableData(model);
 

@@ -19,6 +19,7 @@ public class ColumnModel {
 	private final String defaultValue;
 	private final boolean hidden;
 	private final String humanName;
+	private boolean humanFk;
 
 	public ColumnModel(ResultSet metaRow) throws SQLException {
 		this.name = metaRow.getString("COLUMN_NAME");
@@ -34,6 +35,7 @@ public class ColumnModel {
 		// Set initial values for extended parameters
 		boolean hidden = false;
 		String humanName = this.name;
+		boolean humanFk = false;
 		
 		while(remarks != null) { // Using while here as IF + GOTO replacement =)
 			// Initialize parser
@@ -71,11 +73,15 @@ public class ColumnModel {
 				else if(tag.equals("HUMAN_NAME") && value != null) {
 					humanName = value;
 				}
+				else if (tag.equals("HUMAN_FK")) {
+					humanFk = true;
+				}
 			}
 			break;
 		}
 		this.hidden = hidden;
 		this.humanName = humanName;
+		this.humanFk = humanFk;
 	}
 
 	@Override
@@ -133,5 +139,9 @@ public class ColumnModel {
 
 	public String getHumanName() {
 		return humanName;
+	}
+
+	public boolean isHumanFk() {
+		return humanFk;
 	}
 }
