@@ -38,6 +38,31 @@ public class UnitableRowSet extends JdbcRowSetImpl {
 		super.execute();
 	}
 
+	@Override
+	public boolean absolute(int i) throws SQLException {
+		if(i == 0) {
+			this.beforeFirst();
+			return true;
+		} else if(i == this.getRowCountUnsafe()+1) {
+			this.moveToInsertRow();
+			return true;
+		} else {
+			return super.absolute(i);
+		}
+	}
+
+	public int getRowCount() throws SQLException {
+		int backupRow = this.getRow();
+		int rowCount = this.getRowCountUnsafe();
+		this.absolute(backupRow);
+		return rowCount;
+	}
+
+	protected int getRowCountUnsafe() throws SQLException {
+		this.executeOnce();
+		return this.last() ? this.getRow() : 0;
+	}
+
 	public void executeOnce() throws SQLException {
 		if (!this.isExecuted) {
 			this.execute();
