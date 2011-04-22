@@ -70,5 +70,6 @@ public class UnitableView extends JPanel {
 			}
 		}
 		this.table.setPreferredScrollableViewportSize(new Dimension(this.table.getPreferredSize().width, this.table.getPreferredScrollableViewportSize().height));
+		this.table.setAutoCreateColumnsFromModel(false);
 	}
 }
