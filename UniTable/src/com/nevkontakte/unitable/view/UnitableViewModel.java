@@ -2,9 +2,13 @@ package com.nevkontakte.unitable.view;
 
 import com.nevkontakte.unitable.model.*;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,6 +21,7 @@ import java.util.ArrayList;
 public class UnitableViewModel extends AbstractTableModel {
 	protected final TableData tableData;
 	protected final ArrayList<ViewColumnModel> columns = new ArrayList<ViewColumnModel>();
+	protected final DeleteViewColumnModel deleteColumn = new DeleteViewColumnModel();
 
 	public UnitableViewModel(TableData tableData) throws SQLException {
 		this.tableData = tableData;
@@ -35,6 +40,8 @@ public class UnitableViewModel extends AbstractTableModel {
 			}
 			i++;
 		}
+		this.columns.add(this.deleteColumn);
+		//this.addTableModelListener(this.deleteColumn);
 	}
 
 	public int getRowCount() {
@@ -77,6 +84,24 @@ public class UnitableViewModel extends AbstractTableModel {
 
 	public TableData getTableData() {
 		return tableData;
+	}
+
+	public void deleteMarked() throws SQLException {
+		UnitableRowSet data = this.getTableData().getTableContents(false);
+		Map<Integer, Boolean> selected = this.deleteColumn.getSelected();
+
+		int correction = 0;
+		for(Integer i : selected.keySet()) {
+			if(selected.get(i) == true) {
+				data.absolute(i+1-correction);
+				data.deleteRow();
+				correction++;
+			}
+		}
+		
+		this.deleteColumn.reset();
+		this.getTableData().getTableContents(true).scheduleReExecution();
+		this.fireTableChanged(null);
 	}
 
 	private static interface ViewColumnModel {
@@ -174,6 +199,44 @@ public class UnitableViewModel extends AbstractTableModel {
 				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
 				return null;
 			}
+		}
+	}
+
+	private static class DeleteViewColumnModel implements ViewColumnModel, TableModelListener {
+		private HashMap <Integer, Boolean> markers = new HashMap<Integer, Boolean>();
+
+		public String getColumnName() {
+			return "Delete";
+		}
+
+		public Class<?> getColumnClass() {
+			return Boolean.class;
+		}
+
+		public Object getValueAt(int rowIndex) {
+			return this.markers.containsKey(rowIndex)?this.markers.get(rowIndex):false;
+		}
+
+		public void setValueAt(Object aValue, int rowIndex) {
+			this.markers.put(rowIndex, (Boolean) aValue);
+		}
+
+		public boolean isCellEditable(int rowIndex) {
+			return true;
+		}
+
+		public void tableChanged(TableModelEvent e) {
+			if(e.getType() == TableModelEvent.DELETE) {
+				this.markers.clear();
+			}
+		}
+
+		public Map<Integer, Boolean> getSelected() {
+			return this.markers;
+		}
+
+		public void reset() {
+			this.markers.clear();
 		}
 	}
 }

@@ -5,6 +5,9 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,14 +30,28 @@ public class UnitableView extends JPanel {
 		this.table = new JTable(this.model);
 		this.scroll = new JScrollPane(this.table);
 		this.addForm = new UnitableAddForm(this.model);
+		JPanel buttons = new JPanel(new FlowLayout());
+		JButton deleteButton = new JButton("Delete");
 
 		// Configure components
 		this.table.setAutoCreateRowSorter(true);
+		deleteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					UnitableView.this.model.deleteMarked();
+				} catch (SQLException e1) {
+					// TODO: Nice handling
+					e1.printStackTrace();
+				}
+			}
+		});
 
 		// Configure GUI
 		this.setLayout(new BorderLayout());
 		this.add(this.scroll);
 		this.add(this.addForm, BorderLayout.SOUTH);
+		buttons.add(deleteButton);
+		this.add(buttons, BorderLayout.NORTH);
 
 		// Configure preferred column widths
 		TableColumnModel columnModel = this.table.getColumnModel();
