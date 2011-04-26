@@ -62,6 +62,14 @@ public class UnitableViewModel extends AbstractTableModel {
 		return this.columns.get(columnIndex).getValueAt(rowIndex);
 	}
 
+	public Object getFkValueAt(int rowIndex, int columnIndex) {
+		ViewColumnModel column = this.columns.get(columnIndex);
+		if(column instanceof DbFkViewColumnModel) {
+			return ((DbFkViewColumnModel) column).getFkValueAt(rowIndex);
+		}
+		return column.getValueAt(rowIndex);
+	}
+
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		this.columns.get(columnIndex).setValueAt(aValue, rowIndex);
@@ -86,6 +94,10 @@ public class UnitableViewModel extends AbstractTableModel {
 		return tableData;
 	}
 
+	ViewColumnModel getColumnModel(int columnIndex) {
+		return this.columns.get(columnIndex);
+	}
+
 	public void deleteMarked() throws SQLException {
 		UnitableRowSet data = this.getTableData().getTableContents(false);
 		Map<Integer, Boolean> selected = this.deleteColumn.getSelected();
@@ -104,7 +116,7 @@ public class UnitableViewModel extends AbstractTableModel {
 		this.fireTableChanged(null);
 	}
 
-	private static interface ViewColumnModel {
+	static interface ViewColumnModel {
 		public String getColumnName();
 		public Class<?> getColumnClass();
 		public Object getValueAt(int rowIndex);
@@ -112,7 +124,7 @@ public class UnitableViewModel extends AbstractTableModel {
 		public boolean isCellEditable(int rowIndex);
 	}
 
-	private static class DbViewColumnModel implements ViewColumnModel {
+	static class DbViewColumnModel implements ViewColumnModel {
 		protected final int dataColumnIndex;
 		protected final ColumnModel columnModel;
 		protected final TableData tableData;
@@ -166,7 +178,7 @@ public class UnitableViewModel extends AbstractTableModel {
 		}
 	}
 
-	private static class DbFkViewColumnModel extends DbViewColumnModel{
+	static class DbFkViewColumnModel extends DbViewColumnModel{
 		protected final ForeignKeyModel fk;
 		protected final ArrayList<String> fkCols = new ArrayList<String>();
 
@@ -185,13 +197,18 @@ public class UnitableViewModel extends AbstractTableModel {
 			return String.class;
 		}
 
-		public Object getValueAt(int rowIndex) {
+		public Object getFkValueAt(int rowIndex) {
 			try {
 				UnitableRowSet data = this.tableData.getTableContents(true);
 				data.absolute(rowIndex + 1);
 				StringBuffer value = new StringBuffer();
+				int fragments = 0;
 				for(String fkColumnName : this.fkCols) {
+					if(fragments > 0) {
+						value.append(", ");
+					}
 					value.append(data.getString(fkColumnName));
+					fragments ++ ;
 				}
 				return value.toString();
 			} catch (SQLException e) {
