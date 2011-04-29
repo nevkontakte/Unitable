@@ -1,7 +1,9 @@
 package com.nevkontakte.unitable.model;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * User: aleks
@@ -14,11 +16,20 @@ public class ForeignKeyModel {
 	private final String pkTableName;
 	private final String pkColumnName;
 
-	public ForeignKeyModel(ResultSet rs) throws SQLException {
+	protected final ArrayList<String> fkCols = new ArrayList<String>();
+
+	public ForeignKeyModel(ResultSet rs, Connection db) throws SQLException {
 		this.fkColumnName = rs.getString("FKCOLUMN_NAME");
 		this.fkTableName = rs.getString("FKTABLE_NAME");
 		this.pkColumnName = rs.getString("PKCOLUMN_NAME");
 		this.pkTableName = rs.getString("PKTABLE_NAME");
+
+		TableModel foreignTable = TableModel.get(db, this.getPkTableName());
+		for(ColumnModel column : foreignTable.getColumns().values()) {
+			if(column.isHumanFk()) {
+				fkCols.add(column.getName());
+			}
+		}
 	}
 
 	public String toString() {
@@ -39,5 +50,9 @@ public class ForeignKeyModel {
 
 	public String getPkColumnName() {
 		return pkColumnName;
+	}
+
+	public ArrayList<String> getFkCols() {
+		return fkCols;
 	}
 }

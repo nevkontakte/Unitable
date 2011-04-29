@@ -120,4 +120,26 @@ public class TableData {
 		String quoteString = this.tableModel.getDb().getMetaData().getIdentifierQuoteString();
 		return quoteString + identifier + quoteString;
 	}
+
+	public String getFkHumanValue(String fkColumnName, int row) {
+		try {
+			UnitableRowSet data = this.getTableContents(true);
+			data.absolute(row + 1);
+			StringBuffer value = new StringBuffer();
+			int fragments = 0;
+			ForeignKeyModel fkModel = this.tableModel.getForeignKey(this.tableModel.getColumns().get(fkColumnName));
+			for(String column : fkModel.getFkCols()) {
+				if(fragments > 0) {
+					value.append(", ");
+				}
+				value.append(data.getString(column));
+				fragments ++ ;
+			}
+			return value.toString();
+		} catch (SQLException e) {
+			// TODO: handle nicely
+			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+			return null;
+		}
+	}
 }

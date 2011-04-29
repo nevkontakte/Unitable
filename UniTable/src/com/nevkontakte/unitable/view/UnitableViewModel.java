@@ -180,17 +180,10 @@ public class UnitableViewModel extends AbstractTableModel {
 
 	static class DbFkViewColumnModel extends DbViewColumnModel{
 		protected final ForeignKeyModel fk;
-		protected final ArrayList<String> fkCols = new ArrayList<String>();
 
 		public DbFkViewColumnModel(int dataColumnIndex, ColumnModel columnModel, TableData tableData) throws SQLException {
 			super(dataColumnIndex, columnModel, tableData);
 			this.fk = this.tableData.getTableModel().getForeignKey(columnModel);
-			TableModel foreignTable = TableModel.get(tableData.getTableModel().getDb(), this.fk.getPkTableName());
-			for(ColumnModel column : foreignTable.getColumns().values()) {
-				if(column.isHumanFk()) {
-					fkCols.add(column.getName());
-				}
-			}
 		}
 
 		public Class<?> getColumnClass() {
@@ -198,24 +191,7 @@ public class UnitableViewModel extends AbstractTableModel {
 		}
 
 		public Object getFkValueAt(int rowIndex) {
-			try {
-				UnitableRowSet data = this.tableData.getTableContents(true);
-				data.absolute(rowIndex + 1);
-				StringBuffer value = new StringBuffer();
-				int fragments = 0;
-				for(String fkColumnName : this.fkCols) {
-					if(fragments > 0) {
-						value.append(", ");
-					}
-					value.append(data.getString(fkColumnName));
-					fragments ++ ;
-				}
-				return value.toString();
-			} catch (SQLException e) {
-				// TODO: handle nicely
-				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-				return null;
-			}
+			return this.tableData.getFkHumanValue(fk.getFkColumnName(), rowIndex);
 		}
 	}
 

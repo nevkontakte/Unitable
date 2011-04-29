@@ -48,7 +48,7 @@ public class TableModel {
 		// Load foreign key model
 		ResultSet fkDesc = meta.getImportedKeys(this.db.getCatalog(), null, this.tableName);
 		while (fkDesc.next()) {
-			this.foreignKeys.add(new ForeignKeyModel(fkDesc));
+			this.foreignKeys.add(new ForeignKeyModel(fkDesc, this.db));
 		}
 		fkDesc.close();
 	}

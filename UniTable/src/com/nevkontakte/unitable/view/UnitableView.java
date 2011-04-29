@@ -33,8 +33,11 @@ public class UnitableView extends JPanel {
 
 			@Override
 			public TableCellRenderer getCellRenderer(int row, int column) {
-				//return super.getCellRenderer(row, column);
-				return this.renderer;
+				UnitableViewModel.ViewColumnModel columnModel = UnitableView.this.model.getColumnModel(column);
+				if(columnModel instanceof UnitableViewModel.DbFkViewColumnModel) {
+					return this.renderer;
+				}
+				return super.getCellRenderer(row, column);
 			}
 		};
 		this.scroll = new JScrollPane(this.table);
