@@ -29,7 +29,7 @@ public class UnitableView extends JPanel {
 		// Init components
 		this.model = model;
 		this.table = new JTable(this.model) {
-			UnitableRenderer renderer = new UnitableRenderer();
+			UnitableFkRenderer renderer = new UnitableFkRenderer();
 
 			@Override
 			public TableCellRenderer getCellRenderer(int row, int column) {
@@ -47,7 +47,7 @@ public class UnitableView extends JPanel {
 
 		// Configure components
 		this.table.setAutoCreateRowSorter(true);
-		this.table.setDefaultRenderer(UnitableViewModel.DbFkViewColumnModel.class, new UnitableRenderer());
+		this.table.setDefaultRenderer(UnitableViewModel.DbFkViewColumnModel.class, new UnitableFkRenderer());
 		deleteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -86,7 +86,7 @@ public class UnitableView extends JPanel {
 		this.table.setAutoCreateColumnsFromModel(false);
 	}
 
-	public class UnitableRenderer extends DefaultTableCellRenderer {
+	public class UnitableFkRenderer extends DefaultTableCellRenderer {
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			UnitableViewModel.ViewColumnModel columnModel = model.getColumnModel(column);

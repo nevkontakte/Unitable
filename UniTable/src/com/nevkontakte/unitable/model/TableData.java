@@ -142,4 +142,29 @@ public class TableData {
 			return null;
 		}
 	}
+
+	public String getHumanValue(int row) {
+		try {
+			UnitableRowSet data = this.getTableContents(true);
+			data.absolute(row);
+			StringBuffer value = new StringBuffer();
+			int fragments = 0;
+			for(ColumnModel column : this.tableModel.getColumns().values()) {
+				if(!column.isHumanFk()) {
+					continue;
+				}
+				
+				if(fragments > 0) {
+					value.append(", ");
+				}
+				value.append(data.getString(column.getName()));
+				fragments ++ ;
+			}
+			return value.toString();
+		} catch (SQLException e) {
+			// TODO: handle nicely
+			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+			return null;
+		}
+	}
 }
