@@ -4,6 +4,10 @@ import com.nevkontakte.unitable.model.TableData;
 import com.nevkontakte.unitable.model.UnitableRowSet;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.util.LinkedList;
 
@@ -13,12 +17,73 @@ import java.util.LinkedList;
  * Date: 29.04.11
  * Time: 17:16
  */
-public class UnitableFkSelector extends JComboBox{
+public class UnitableFkSelector extends JComboBox {
 	private TableData data;
+	private FkSelectorModel model;
+	private boolean isAutoCompleting = false;
 
 	public UnitableFkSelector(TableData data) {
 		this.data = data;
-		this.setModel(new FkSelectorModel(data));
+		this.setEditable(true);
+		model = new FkSelectorModel(data);
+		this.setModel(model);
+		final JTextField field = (JTextField) this.getEditor().getEditorComponent();
+		field.getDocument().addDocumentListener(new DocumentListener() {
+			public void insertUpdate(DocumentEvent e) {
+				showPopup();
+			}
+
+			public void removeUpdate(DocumentEvent e) {
+				showPopup();
+			}
+
+			public void changedUpdate(DocumentEvent e) {
+				showPopup();
+			}
+		});
+		field.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if(field.getFont().canDisplay(e.getKeyCode())) {
+					autoComplete();
+				}
+			}
+		});
+	}
+
+	private void autoComplete() {
+		if(this.isAutoCompleting()) {
+			return;
+		}
+		this.setAutoCompleting(true);
+		JTextField field = (JTextField) this.getEditor().getEditorComponent();
+		String fieldText = field.getText();
+		if(fieldText.length() != 0) {
+			int select = this.model.getAutoCompleteCandidate(fieldText);
+			if(select != -1) {
+				int cursor = field.getCaretPosition();
+				System.out.println(field.getText());
+				this.setSelectedIndex(select);
+				System.out.println(field.getText());
+				getEditor().setItem(this.getSelectedItem());
+				System.out.println(field.getText());
+				field.setSelectionStart(cursor);
+				field.setSelectionEnd(field.getText().length());
+				System.out.println(field.getText());
+				//field.setCaretPosition(cursor);
+//				System.out.println(cursor);
+//				System.out.println(field.getText().length());
+			}
+		}
+		this.setAutoCompleting(false);
+	}
+
+	protected boolean isAutoCompleting() {
+		return isAutoCompleting;
+	}
+
+	protected void setAutoCompleting(boolean autoCompleting) {
+		isAutoCompleting = autoCompleting;
 	}
 
 	private static class FkSelectorModel extends DefaultComboBoxModel{
@@ -30,12 +95,10 @@ public class UnitableFkSelector extends JComboBox{
 				rows.beforeFirst();
 				while (rows.next()) {
 					items.add(new ListItem(data.getHumanValue(rows.getRow()), rows.getInt(data.getTableModel().getPrimaryKeys().get(0).getName())));
-					System.out.println(data.getHumanValue(rows.getRow()));
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			System.out.println(this.items);
 		}
 
 		public int getSize() {
@@ -43,7 +106,16 @@ public class UnitableFkSelector extends JComboBox{
 		}
 
 		public Object getElementAt(int index) {
-			return this.items.get(index).getTitle();
+			return this.items.get(index);
+		}
+
+		public int getAutoCompleteCandidate(String partial) {
+			for(int i = 0; i < this.items.size(); i++) {
+				if(this.items.get(i).getTitle().startsWith(partial)) {
+					return i;
+				}
+			}
+			return -1;
 		}
 	}
 
@@ -66,7 +138,7 @@ public class UnitableFkSelector extends JComboBox{
 
 		@Override
 		public String toString() {
-			return String.format("<%d, %s>", this.id, this.title);
+			return this.title;
 		}
 	}
 }

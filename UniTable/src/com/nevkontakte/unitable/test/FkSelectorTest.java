@@ -7,6 +7,8 @@ import oracle.jdbc.OracleDriver;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -37,8 +39,16 @@ public class FkSelectorTest {
 
 		// Show GUI
 		JFrame f = new JFrame("Test table");
-		UnitableFkSelector s = new UnitableFkSelector(data);
+		final JLabel value = new JLabel();
+		final UnitableFkSelector s = new UnitableFkSelector(data);
+		s.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//value.setText(s.getSelectedItem().toString()+" "+s.getSelectedItem().getClass().getName());
+				//value.repaint();
+			}
+		});
 		f.add(s, BorderLayout.NORTH);
+		f.add(value);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setMinimumSize(new Dimension(400, 300));
 		f.pack();
