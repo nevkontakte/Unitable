@@ -96,7 +96,7 @@ public class UnitableFkSelector extends JComboBox {
 
 		public int getAutoCompleteCandidate(String partial) {
 			for(int i = 0; i < this.items.size(); i++) {
-				if(this.items.get(i).getTitle().startsWith(partial)) {
+				if(this.items.get(i).getTitle().toLowerCase().startsWith(partial.toLowerCase())) {
 					return i;
 				}
 			}
@@ -131,19 +131,19 @@ public class UnitableFkSelector extends JComboBox {
 		int candidate = -1;
 		public void undoableEditHappened(UndoableEditEvent e) {
 			// Prepare auto completion
-			JTextField field = (JTextField) getEditor().getEditorComponent();
-			this.candidate = model.getAutoCompleteCandidate(field.getText());
-			if(this.candidate == -1) {
-				e.getEdit().undo();
+			if(!isAutoCompleting()) {
+				JTextField field = (JTextField) getEditor().getEditorComponent();
+				this.candidate = model.getAutoCompleteCandidate(field.getText());
+				if(this.candidate == -1) {
+					e.getEdit().undo();
+				}
 			}
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if(!getEditor().getEditorComponent().getFont().canDisplay(e.getKeyCode())) {
-				return;
-			}
-			if(this.candidate != -1) {
+			JTextField field = (JTextField) getEditor().getEditorComponent();
+			if(this.candidate != -1 && field.getFont().canDisplay(e.getKeyCode())) {
 				autoComplete(this.candidate);
 			}
 		}
