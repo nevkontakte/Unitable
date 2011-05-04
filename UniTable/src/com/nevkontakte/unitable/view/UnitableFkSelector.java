@@ -6,6 +6,8 @@ import com.nevkontakte.unitable.model.UnitableRowSet;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
@@ -41,40 +43,23 @@ public class UnitableFkSelector extends JComboBox {
 				showPopup();
 			}
 		});
-		field.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				if(field.getFont().canDisplay(e.getKeyCode())) {
-					autoComplete();
-				}
-			}
-		});
+		AutoCompletionListener l = new AutoCompletionListener();
+		field.getDocument().addUndoableEditListener(l);
+		field.addKeyListener(l);
 	}
 
-	private void autoComplete() {
+	private void autoComplete(int candidate) {
 		if(this.isAutoCompleting()) {
 			return;
 		}
 		this.setAutoCompleting(true);
 		JTextField field = (JTextField) this.getEditor().getEditorComponent();
-		String fieldText = field.getText();
-		if(fieldText.length() != 0) {
-			int select = this.model.getAutoCompleteCandidate(fieldText);
-			if(select != -1) {
-				int cursor = field.getCaretPosition();
-				System.out.println(field.getText());
-				this.setSelectedIndex(select);
-				System.out.println(field.getText());
-				getEditor().setItem(this.getSelectedItem());
-				System.out.println(field.getText());
-				field.setSelectionStart(cursor);
-				field.setSelectionEnd(field.getText().length());
-				System.out.println(field.getText());
-				//field.setCaretPosition(cursor);
-//				System.out.println(cursor);
-//				System.out.println(field.getText().length());
-			}
-		}
+		int cursor = field.getCaretPosition();
+		int oldSelection = this.getSelectedIndex();
+		this.setSelectedIndex(candidate);
+		getEditor().setItem(this.getSelectedItem());
+		field.setSelectionStart(cursor);
+		field.setSelectionEnd(field.getText().length());
 		this.setAutoCompleting(false);
 	}
 
@@ -139,6 +124,28 @@ public class UnitableFkSelector extends JComboBox {
 		@Override
 		public String toString() {
 			return this.title;
+		}
+	}
+
+	private class AutoCompletionListener extends KeyAdapter implements UndoableEditListener {
+		int candidate = -1;
+		public void undoableEditHappened(UndoableEditEvent e) {
+			// Prepare auto completion
+			JTextField field = (JTextField) getEditor().getEditorComponent();
+			this.candidate = model.getAutoCompleteCandidate(field.getText());
+			if(this.candidate == -1) {
+				e.getEdit().undo();
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if(!getEditor().getEditorComponent().getFont().canDisplay(e.getKeyCode())) {
+				return;
+			}
+			if(this.candidate != -1) {
+				autoComplete(this.candidate);
+			}
 		}
 	}
 }
