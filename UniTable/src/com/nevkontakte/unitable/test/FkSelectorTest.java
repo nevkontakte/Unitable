@@ -43,14 +43,18 @@ public class FkSelectorTest {
 		final UnitableFkSelector s = new UnitableFkSelector(data);
 		s.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//value.setText(s.getSelectedItem().toString()+" "+s.getSelectedItem().getClass().getName());
-				//value.repaint();
+				if(s.getSelectedItem() == null) {
+					value.setText("null");
+				}
+				else {
+					value.setText(s.getSelectedItem().toString());
+				}
 			}
 		});
-		f.add(s, BorderLayout.NORTH);
+		f.add(s, BorderLayout.SOUTH);
 		f.add(value);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setMinimumSize(new Dimension(400, 300));
+		f.setMinimumSize(new Dimension(300, 100));
 		f.pack();
 		f.setVisible(true);
 
