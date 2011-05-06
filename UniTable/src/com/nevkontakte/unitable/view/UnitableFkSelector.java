@@ -26,7 +26,6 @@ public class UnitableFkSelector extends JComboBox {
 
 	public UnitableFkSelector(TableData data) {
 		this.data = data;
-		this.setEditable(true);
 		model = new FkSelectorModel(data);
 		this.setModel(model);
 		final JTextField field = (JTextField) this.getEditor().getEditorComponent();
@@ -52,6 +51,7 @@ public class UnitableFkSelector extends JComboBox {
 		AutoCompletionListener l = new AutoCompletionListener();
 		field.getDocument().addUndoableEditListener(l);
 		field.addKeyListener(l);
+		this.setEditable(true);
 	}
 
 	private void autoComplete(int candidate) {

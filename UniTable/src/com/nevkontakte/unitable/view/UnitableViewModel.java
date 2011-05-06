@@ -116,6 +116,11 @@ public class UnitableViewModel extends AbstractTableModel {
 		this.fireTableChanged(null);
 	}
 
+	public void refreshRow(int row) throws SQLException {
+		this.tableData.getTableContents(true).absolute(row+1);
+		this.tableData.getTableContents(true).refreshRow();
+	}
+
 	static interface ViewColumnModel {
 		public String getColumnName();
 		public Class<?> getColumnClass();
@@ -192,6 +197,10 @@ public class UnitableViewModel extends AbstractTableModel {
 
 		public Object getFkValueAt(int rowIndex) {
 			return this.tableData.getFkHumanValue(fk.getFkColumnName(), rowIndex);
+		}
+
+		public ForeignKeyModel getForeignKeyModel() {
+			return this.fk;
 		}
 	}
 
