@@ -40,6 +40,7 @@ public class MainTest {
 		f.add(table);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.pack();
+		f.setExtendedState(f.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		f.setVisible(true);
 	}
 }
