@@ -1,6 +1,9 @@
 package com.nevkontakte.unitable.view;
 
 import com.nevkontakte.unitable.model.ColumnModel;
+import com.nevkontakte.unitable.model.ForeignKeyModel;
+import com.nevkontakte.unitable.model.TableData;
+import com.nevkontakte.unitable.model.TableModel;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -32,7 +35,7 @@ import java.util.LinkedHashMap;
 public class UnitableAddForm extends JPanel{
 	protected final static int GAP = 5;
 	protected final UnitableViewModel model;
-	LinkedHashMap<String, JFormattedTextField> fields = new LinkedHashMap<String, JFormattedTextField>();
+	LinkedHashMap<String, JComponent> fields = new LinkedHashMap<String, JComponent>();
 
 	public UnitableAddForm(final UnitableViewModel model) {
 		this.model = model;
@@ -42,12 +45,29 @@ public class UnitableAddForm extends JPanel{
 
 		Border tmpBorder = null;
 		final JButton add = new JButton("Add");
-		for(ColumnModel columnModel : this.model.getTableData().getTableModel().getColumns().values()) {
+		TableModel tableModel = this.model.getTableData().getTableModel();
+		for(ColumnModel columnModel : tableModel.getColumns().values()) {
 			if(columnModel.isHidden()) {
 				continue;
 			}
 			inputs.add(new JLabel(columnModel.getHumanName()+':'));
-			JFormattedTextField field = new JFormattedTextField(this.getFormatByInt(columnModel.getType()));
+			JComponent field;
+			ForeignKeyModel fkModel = tableModel.getForeignKey(columnModel);
+			if(fkModel != null) {
+				try {
+					UnitableFkSelector fkField = new UnitableFkSelector(new TableData(TableModel.get(tableModel.getDb(), fkModel.getPkTableName())));
+					field = fkField;
+				} catch (SQLException e) {
+					e.printStackTrace();
+					continue;
+				}
+			} else {
+				JFormattedTextField formattedField = new JFormattedTextField(this.getFormatByInt(columnModel.getType()));
+				
+				formattedField.setFocusLostBehavior(JFormattedTextField.PERSIST);
+				field = formattedField;
+			}
+
 			field.addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
@@ -56,7 +76,6 @@ public class UnitableAddForm extends JPanel{
 					}
 				}
 			});
-			field.setFocusLostBehavior(JFormattedTextField.PERSIST);
 			field.setPreferredSize(new Dimension(100, field.getPreferredSize().height));
 			inputs.add(field);
 			this.fields.put(columnModel.getName(), field);
@@ -71,20 +90,30 @@ public class UnitableAddForm extends JPanel{
 			public void actionPerformed(ActionEvent e) {
 				boolean errors = false;
 				for(String columnName : fields.keySet()) {
-					JFormattedTextField field = fields.get(columnName);
-					try {
-						if(field.getBorder() instanceof CompoundBorder) {
-							field.setBorder(defaultBorder);
+					JComponent genericField = fields.get(columnName);
+					ColumnModel columnModel = model.getTableData().getTableModel().getColumns().get(columnName);
+					if(genericField.getBorder() instanceof CompoundBorder) {
+						genericField.setBorder(defaultBorder);
+					}
+					if(genericField instanceof JFormattedTextField) {
+						JFormattedTextField field = (JFormattedTextField) genericField;
+						try {
+							field.commitEdit();
+							if(!columnModel.isNullable() &&
+									field.getValue().equals("")) {
+								// TODO: Normal error handling
+								throw new Exception();
+							}
+						} catch (Exception e1) {
+							field.setBorder(new CompoundBorder(new LineBorder(Color.RED), field.getBorder()));
+							errors = true;
 						}
-						field.commitEdit();
-						if(!model.getTableData().getTableModel().getColumns().get(columnName).isNullable() &&
-								field.getValue().equals("")) {
-							// TODO: Normal error handling
-							throw new Exception();
+					} else if(genericField instanceof UnitableFkSelector) {
+						UnitableFkSelector field = (UnitableFkSelector) genericField;
+						if(field.getSelectedForeignKey() == null && !columnModel.isNullable()) {
+							field.setBorder(new CompoundBorder(new LineBorder(Color.RED), field.getBorder()));
+							errors = true;
 						}
-					} catch (Exception e1) {
-						field.setBorder(new CompoundBorder(new LineBorder(Color.RED), field.getBorder()));
-						errors = true;
 					}
 				}
 				if(errors) {
@@ -93,8 +122,14 @@ public class UnitableAddForm extends JPanel{
 
 				HashMap<String, Object> values = new HashMap<String, Object>();
 				for(String columnName : fields.keySet()) {
-					values.put(columnName, fields.get(columnName).getValue());
-					fields.get(columnName).setValue(null);
+					JComponent genericField = fields.get(columnName);
+					if(genericField instanceof JFormattedTextField) {
+						JFormattedTextField field = (JFormattedTextField) genericField;
+						values.put(columnName, field.getValue());
+					} else if(genericField instanceof UnitableFkSelector) {
+						UnitableFkSelector field = (UnitableFkSelector) genericField;
+						values.put(columnName, field.getSelectedForeignKey());
+					}
 				}
 
 				try {
@@ -104,7 +139,15 @@ public class UnitableAddForm extends JPanel{
 					model.getTableData().getTableContents(true).scheduleReExecution();
 					
 					for(String columnName : fields.keySet()) {
-						fields.get(columnName).setValue(null);
+						JComponent genericField = fields.get(columnName);
+						if(genericField instanceof JFormattedTextField) {
+							JFormattedTextField field = (JFormattedTextField) genericField;
+							field.setValue(null);
+						} else if(genericField instanceof UnitableFkSelector) {
+							UnitableFkSelector field = (UnitableFkSelector) genericField;
+							field.setSelectedIndex(-1);
+							field.hidePopup();
+						}
 					}
 				} catch (SQLException e1) {
 					JOptionPane.showMessageDialog(UnitableAddForm.this, "Row can't be added: "+e1.getLocalizedMessage(), "Edit error", JOptionPane.ERROR_MESSAGE);
