@@ -62,7 +62,6 @@ public class UnitableFkSelector extends JComboBox {
 		JTextField field = (JTextField) this.getEditor().getEditorComponent();
 		int cursor = field.getCaretPosition();
 		int oldSelection = this.getSelectedIndex();
-		System.out.println(candidate);
 		this.setSelectedIndex(candidate);
 		getEditor().setItem(this.getSelectedItem());
 		field.setSelectionStart(cursor);
