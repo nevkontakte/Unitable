@@ -115,7 +115,7 @@ public class UnitableView extends JPanel {
 					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 						fireEditingStopped();
 						try {
-							model.getTableData().getTableContents(true).execute();
+							model.getTableData().getTableContents(true).scheduleReExecution();
 						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
