@@ -32,15 +32,21 @@ public class UnitableFkSelector extends JComboBox {
 		final JTextField field = (JTextField) this.getEditor().getEditorComponent();
 		field.getDocument().addDocumentListener(new DocumentListener() {
 			public void insertUpdate(DocumentEvent e) {
-				showPopup();
+				if(UnitableFkSelector.this.isShowing()) {
+					showPopup();
+				}
 			}
 
 			public void removeUpdate(DocumentEvent e) {
-				showPopup();
+				if(UnitableFkSelector.this.isShowing()) {
+					showPopup();
+				}
 			}
 
 			public void changedUpdate(DocumentEvent e) {
-				showPopup();
+				if(UnitableFkSelector.this.isShowing()) {
+					showPopup();
+				}
 			}
 		});
 		AutoCompletionListener l = new AutoCompletionListener();
@@ -71,6 +77,26 @@ public class UnitableFkSelector extends JComboBox {
 		isAutoCompleting = autoCompleting;
 	}
 
+	public Object getSelectedForeignKey() {
+		Object selected = this.model.getSelectedItem();
+		if(selected instanceof ListItem) {
+			return ((ListItem) selected).getId();
+		} else {
+			return null;
+		}
+	}
+
+	public void setSelectedForeignKey(Object key) {
+		for(int i = 0; i < this.model.getSize(); i++) {
+			if(key.equals(this.model.getElementAt(i).getId())) {
+				this.setSelectedIndex(i);
+				JTextField field = (JTextField) this.getEditor().getEditorComponent();
+				field.setCaretPosition(field.getText().length());
+				return;
+			}
+		}
+	}
+
 	private static class FkSelectorModel extends DefaultComboBoxModel{
 		private LinkedList<ListItem> items = new LinkedList<ListItem>();
 
@@ -90,7 +116,7 @@ public class UnitableFkSelector extends JComboBox {
 			return this.items.size();
 		}
 
-		public Object getElementAt(int index) {
+		public ListItem getElementAt(int index) {
 			return this.items.get(index);
 		}
 

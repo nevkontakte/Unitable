@@ -41,13 +41,14 @@ public class FkSelectorTest {
 		JFrame f = new JFrame("Test table");
 		final JLabel value = new JLabel();
 		final UnitableFkSelector s = new UnitableFkSelector(data);
+		s.setSelectedForeignKey(1);
 		s.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(s.getSelectedItem() == null) {
-					value.setText("null");
+					value.setText("null"+"["+s.getSelectedForeignKey()+"]");
 				}
 				else {
-					value.setText(s.getSelectedItem().toString());
+					value.setText(s.getSelectedItem().toString()+"@"+s.getSelectedItem().getClass().getName()+"["+s.getSelectedForeignKey()+"]");
 				}
 			}
 		});
