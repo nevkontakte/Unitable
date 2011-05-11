@@ -37,7 +37,7 @@ public class UnitableView extends JPanel {
 		JButton deleteButton = new JButton("Delete");
 
 		// Configure components
-		this.table.setAutoCreateRowSorter(true);
+		//this.table.setAutoCreateRowSorter(true);
 		this.table.setDefaultRenderer(UnitableViewModel.DbFkViewColumnModel.class, new UnitableFkRenderer());
 		deleteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

@@ -19,6 +19,7 @@ import java.util.Locale;
  */
 public class MainTest {
 	public static void main(String[] args) throws SQLException {
+		// Set up look'n'feel
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -35,7 +36,7 @@ public class MainTest {
 		TableData data = new TableData(model);
 
 		// Show GUI
-		JFrame f = new JFrame("Test table");
+		JFrame f = new JFrame(model.getTableName());
 		UnitableView table = new UnitableView(new UnitableViewModel(data));
 		f.add(table);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

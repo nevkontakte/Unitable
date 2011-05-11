@@ -1,5 +1,6 @@
 package com.nevkontakte.unitable.view;
 
+import com.nevkontakte.unitable.foreign.SpringUtilities;
 import com.nevkontakte.unitable.model.ColumnModel;
 import com.nevkontakte.unitable.model.ForeignKeyModel;
 import com.nevkontakte.unitable.model.TableData;
@@ -55,7 +56,16 @@ public class UnitableAddForm extends JPanel{
 			ForeignKeyModel fkModel = tableModel.getForeignKey(columnModel);
 			if(fkModel != null) {
 				try {
-					UnitableFkSelector fkField = new UnitableFkSelector(new TableData(TableModel.get(tableModel.getDb(), fkModel.getPkTableName())));
+					final UnitableFkSelector fkField = new UnitableFkSelector(new TableData(TableModel.get(tableModel.getDb(), fkModel.getPkTableName())));
+					fkField.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
+						@Override
+						public void keyReleased(KeyEvent e) {
+							if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+								fkField.hidePopup();
+								add.doClick();
+							}
+						}
+					});
 					field = fkField;
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -63,19 +73,19 @@ public class UnitableAddForm extends JPanel{
 				}
 			} else {
 				JFormattedTextField formattedField = new JFormattedTextField(this.getFormatByInt(columnModel.getType()));
-				
+
+				formattedField.addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyPressed(KeyEvent e) {
+						if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+							add.doClick();
+						}
+					}
+				});
 				formattedField.setFocusLostBehavior(JFormattedTextField.PERSIST);
 				field = formattedField;
 			}
 
-			field.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-						add.doClick();
-					}
-				}
-			});
 			field.setPreferredSize(new Dimension(100, field.getPreferredSize().height));
 			inputs.add(field);
 			this.fields.put(columnModel.getName(), field);
