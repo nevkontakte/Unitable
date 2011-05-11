@@ -5,6 +5,7 @@ import com.nevkontakte.unitable.foreign.SpringUtilities;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -29,6 +30,18 @@ public class ConnectionDialog extends JDialog{
 		this.url = url;
 		this.login.setColumns(15);
 		this.password.setColumns(15);
+		KeyAdapter submitter = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+					onOk();
+				} else if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					onExit();
+				}
+			}
+		};
+		this.login.addKeyListener(submitter);
+		this.password.addKeyListener(submitter);
 
 		JPanel mainPanel = new JPanel(new SpringLayout());
 		mainPanel.add(new JLabel("Login"));
