@@ -64,14 +64,20 @@ public class MainFrame extends JFrame{
 	}
 
 	protected void onTableEdit(TableModel model) {
-		try {
-			UnitableViewModel viewModel = new UnitableViewModel(new TableData(model));
-			this.tabs.addTab(model.getTableHumanName(), new UnitableView(viewModel));
-			this.tabs.setTabComponentAt(this.tabs.getTabCount()-1, new CloseTabComponent(model.getTableHumanName()));
-			this.tabs.setSelectedIndex(this.tabs.getTabCount()-1);
-		} catch (SQLException e) {
-			// TODO: Handle exception
-			e.printStackTrace();
+		int index = this.tabs.indexOfTab(model.getTableHumanName());
+		if(index == -1) {
+			try {
+				UnitableViewModel viewModel = new UnitableViewModel(new TableData(model));
+				this.tabs.addTab(model.getTableHumanName(), new UnitableView(viewModel));
+				this.tabs.setTabComponentAt(this.tabs.getTabCount()-1, new CloseTabComponent(model.getTableHumanName()));
+				this.tabs.setSelectedIndex(this.tabs.getTabCount()-1);
+			} catch (SQLException e) {
+				// TODO: Handle exception
+				e.printStackTrace();
+			}
+		}
+		else {
+			this.tabs.setSelectedIndex(index);
 		}
 	}
 
