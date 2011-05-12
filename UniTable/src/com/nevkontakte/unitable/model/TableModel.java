@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 public class TableModel {
 	private final Connection db;
 	protected final String tableName;
+	protected final String tableHumanName;
 
 	protected final LinkedHashMap<String, ColumnModel> columns = new LinkedHashMap<String, ColumnModel>();
 	protected final ArrayList<ColumnModel> primaryKeys = new ArrayList<ColumnModel>();
@@ -24,6 +25,8 @@ public class TableModel {
 	public TableModel(Connection db, String tableName) throws SQLException {
 		this.db = db;
 		this.tableName = tableName;
+		// TODO: Get table human name fro remarks
+		this.tableHumanName = this.tableName;
 		this.loadTableSchema();
 	}
 
@@ -81,6 +84,10 @@ public class TableModel {
 		}
 
 		return null;
+	}
+
+	public String getTableHumanName() {
+		return tableHumanName;
 	}
 
 	@Override

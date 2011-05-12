@@ -1,5 +1,6 @@
 package com.nevkontakte.unitable.test;
 
+import com.nevkontakte.unitable.model.DatabaseModel;
 import com.nevkontakte.unitable.model.TableData;
 import com.nevkontakte.unitable.model.TableModel;
 import com.nevkontakte.unitable.view.UnitableView;
@@ -34,6 +35,7 @@ public class MainTest {
 		TableModel model = TableModel.get(connection, "department");
 		System.out.println(model);
 		TableData data = new TableData(model);
+		System.out.println(new DatabaseModel(connection));
 
 		// Show GUI
 		JFrame f = new JFrame(model.getTableName());

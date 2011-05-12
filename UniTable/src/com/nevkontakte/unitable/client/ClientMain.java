@@ -1,6 +1,8 @@
 package com.nevkontakte.unitable.client;
 
 import javax.swing.*;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Locale;
 
 /**
@@ -10,7 +12,7 @@ import java.util.Locale;
  * Time: 22:46
  */
 public class ClientMain {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		// Set up look'n'feel
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -18,8 +20,15 @@ public class ClientMain {
 		}
 		Locale.setDefault(Locale.ENGLISH);
 
+		/*
 		ConnectionDialog connect = new ConnectionDialog("jdbc:mysql://localhost/unitable");
 		connect.setVisible(true);
-		System.out.println(connect.getConnection());
+		if(connect.getStatus() == ConnectionDialog.Status.CONNECTED) {
+			MainFrame mainWindow = new MainFrame(connect.getConnection());
+			mainWindow.setVisible(true);
+		}
+		*/
+		MainFrame mainWindow = new MainFrame(DriverManager.getConnection("jdbc:mysql://localhost/unitable", "root", "mpwd2007"));
+		mainWindow.setVisible(true);
 	}
 }
