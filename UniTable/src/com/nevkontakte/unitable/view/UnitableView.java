@@ -38,6 +38,7 @@ public class UnitableView extends JPanel {
 
 		// Configure components
 		//this.table.setAutoCreateRowSorter(true);
+		this.table.getTableHeader().setReorderingAllowed(false);
 		this.table.setDefaultRenderer(UnitableViewModel.DbFkViewColumnModel.class, new UnitableFkRenderer());
 		deleteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
