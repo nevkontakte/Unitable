@@ -1,8 +1,11 @@
 package com.nevkontakte.unitable.client;
 
+import com.nevkontakte.unitable.client.reports.ReportParametersDialog;
+import com.nevkontakte.unitable.client.reports.TestReport;
 import com.nevkontakte.unitable.model.DatabaseModel;
 import com.nevkontakte.unitable.model.TableData;
 import com.nevkontakte.unitable.model.TableModel;
+import com.nevkontakte.unitable.model.UnitableRowSet;
 import com.nevkontakte.unitable.view.UnitableView;
 import com.nevkontakte.unitable.view.UnitableViewModel;
 
@@ -24,6 +27,7 @@ import java.sql.SQLException;
 public class MainFrame extends JFrame{
 	protected final Connection db;
 	protected final JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+
 	public MainFrame(Connection db) throws HeadlessException {
 		this.db = db;
 
@@ -57,6 +61,12 @@ public class MainFrame extends JFrame{
 		}
 		menu.add(tablesMenu);
 
+		// Reports
+		JMenu reportMenu = new JMenu("Reports");
+		reportMenu.add(new JMenuItem(new ReportShowAction(new TestReport(this.db))));
+
+		menu.add(reportMenu);
+
 		this.setJMenuBar(menu);
 	}
 
@@ -83,6 +93,34 @@ public class MainFrame extends JFrame{
 		}
 	}
 
+	protected void onReportView(ReportParametersDialog dialog) {
+		dialog.setVisible(true);
+		if(!dialog.isOk()) {
+			return;
+		}
+		try {
+			UnitableRowSet rowSet = dialog.buildQuery();
+			this.tabs.addTab(dialog.getReportName(), new RowSetView(rowSet));
+			this.tabs.setTabComponentAt(this.tabs.getTabCount()-1, new CloseTabComponent(dialog.getReportName()));
+			this.tabs.setSelectedIndex(this.tabs.getTabCount()-1);
+		} catch (SQLException e) {
+			// TODO: Error handling
+			e.printStackTrace();
+		}
+	}
+
+	private class ReportShowAction extends AbstractAction {
+		private ReportParametersDialog dialog;
+		private ReportShowAction(ReportParametersDialog dialog) {
+			this.dialog = dialog;
+			this.putValue(TableEditAction.NAME, dialog.getReportName());
+			this.putValue(TableEditAction.SHORT_DESCRIPTION, "Show report dialog");
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			onReportView(dialog);
+		}
+	}
 	private class TableEditAction extends AbstractAction {
 		private final TableModel table;
 
