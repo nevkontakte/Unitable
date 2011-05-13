@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Properties;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,7 +19,7 @@ public class ClientMain {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 		}
-		Locale.setDefault(Locale.ENGLISH);
+		Locale.setDefault(new Locale("RUSSIAN"));
 
 		/*
 		ConnectionDialog connect = new ConnectionDialog("jdbc:mysql://localhost/unitable");
@@ -28,7 +29,12 @@ public class ClientMain {
 			mainWindow.setVisible(true);
 		}
 		*/
-		MainFrame mainWindow = new MainFrame(DriverManager.getConnection("jdbc:mysql://localhost/unitable", "root", "mpwd2007"));
+		Properties props = new Properties();
+		props.put("user", "root");
+		props.put("password", "mpwd2007");
+		props.put("useUnicode","true");
+		props.put("characterEncoding", "utf8");
+		MainFrame mainWindow = new MainFrame(DriverManager.getConnection("jdbc:mysql://localhost/unitable", props));
 		mainWindow.setVisible(true);
 	}
 }
