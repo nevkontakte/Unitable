@@ -10,6 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -109,6 +111,8 @@ public class MainFrame extends JFrame{
 
 	private class CloseTabComponent extends JPanel implements ActionListener {
 		private String title;
+		private int size;
+
 		private CloseTabComponent(String title) {
 			this.title = title;
 			this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
@@ -116,12 +120,39 @@ public class MainFrame extends JFrame{
 
 			this.add(label);
 			JButton close = new JButton() {
+				private BasicStroke stroke;
 				{
-					this.setText("×");
-//					int size = this.getFontMetrics(this.getFont()).get;
-					this.setPreferredSize(new Dimension(this.getPreferredSize().width, this.getPreferredSize().width));
+					this.stroke = new BasicStroke(1.5f);
+					size = this.getFontMetrics(this.getFont()).getAscent();
+					this.setPreferredSize(new Dimension(size, size));
 					this.setFocusable(false);
 					this.setBorderPainted(false);
+					this.setContentAreaFilled(false);
+					this.setRolloverEnabled(true);
+					this.setBorder(BorderFactory.createEtchedBorder());
+					this.addMouseListener(new MouseAdapter() {
+						@Override
+						public void mouseEntered(MouseEvent e) {
+							setBorderPainted(true);
+						}
+
+						@Override
+						public void mouseExited(MouseEvent e) {
+							setBorderPainted(false);
+						}
+					});
+				}
+
+				@Override
+				protected void paintComponent(Graphics g) {
+					super.paintComponent(g);
+					Graphics2D g2d = (Graphics2D) g.create();
+					g2d.setStroke(this.stroke);
+					g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					float offset = size/4.0f;
+					g2d.drawLine(Math.round(offset), Math.round(offset), Math.round(size-offset-1), Math.round(size-offset-1));
+					g2d.drawLine(Math.round(offset), Math.round(size-offset-1), Math.round(size-offset-1), Math.round(offset));
+					g2d.dispose();
 				}
 			};
 			close.addActionListener(this);
