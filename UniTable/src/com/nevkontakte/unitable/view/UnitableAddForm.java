@@ -48,7 +48,8 @@ public class UnitableAddForm extends JPanel{
 		final JButton add = new JButton("Add");
 		TableModel tableModel = this.model.getTableData().getTableModel();
 		for(ColumnModel columnModel : tableModel.getColumns().values()) {
-			if(columnModel.isHidden()) {
+			if((columnModel.isMarked() && (columnModel.isHidden())) ||
+					((!columnModel.isMarked()) && (tableModel.getPrimaryKeys().contains(columnModel)))) {
 				continue;
 			}
 			inputs.add(new JLabel(columnModel.getHumanName()+':'));
