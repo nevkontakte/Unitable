@@ -3,8 +3,6 @@ package com.nevkontakte.unitable.test;
 import com.nevkontakte.unitable.model.DatabaseModel;
 import com.nevkontakte.unitable.model.TableData;
 import com.nevkontakte.unitable.model.TableModel;
-import com.nevkontakte.unitable.view.UnitableView;
-import com.nevkontakte.unitable.view.UnitableViewModel;
 import oracle.jdbc.OracleDriver;
 
 import javax.swing.*;
@@ -12,6 +10,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Properties;
 
 /**
  * User: aleks
@@ -31,13 +30,18 @@ public class MainTest {
 		dburl = "jdbc:mysql://localhost/unitable";
 		String user = "aleks";
 		String password = "mpwd2007";
-		Connection connection = DriverManager.getConnection(dburl, user, password);
-		TableModel model = TableModel.get(connection, "department");
+		Properties props = new Properties();
+		props.put("user", user);
+		props.put("password", password);
+		props.put("remarksReporting", "true");
+		Connection connection = DriverManager.getConnection(dburl, props);
+		TableModel model = TableModel.get(connection, "teacher");
 		System.out.println(model);
 		TableData data = new TableData(model);
 		System.out.println(new DatabaseModel(connection));
 
 		// Show GUI
+		/*
 		JFrame f = new JFrame(model.getTableName());
 		UnitableView table = new UnitableView(new UnitableViewModel(data));
 		f.add(table);
@@ -45,5 +49,6 @@ public class MainTest {
 		f.pack();
 		f.setExtendedState(f.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		f.setVisible(true);
+		*/
 	}
 }

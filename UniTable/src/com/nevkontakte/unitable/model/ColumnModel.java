@@ -19,7 +19,8 @@ public class ColumnModel {
 	private final String defaultValue;
 	private final boolean hidden;
 	private final String humanName;
-	private boolean humanFk;
+	private final boolean humanFk;
+	private final boolean marked;
 
 	public ColumnModel(ResultSet metaRow) throws SQLException {
 		this.name = metaRow.getString("COLUMN_NAME");
@@ -34,8 +35,9 @@ public class ColumnModel {
 
 		// Set initial values for extended parameters
 		boolean hidden = false;
-		String humanName = this.name;
+		String humanName = null;
 		boolean humanFk = false;
+		boolean marked = false;
 		
 		while(remarks != null) { // Using while here as IF + GOTO replacement =)
 			// Initialize parser
@@ -50,6 +52,7 @@ public class ColumnModel {
 			if(!magicTag.toUpperCase().equals("UNITABLE")) {
 				break;
 			}
+			marked = true;
 
 			// Loop through tags
 			while(s.hasNext()) {
@@ -79,9 +82,14 @@ public class ColumnModel {
 			}
 			break;
 		}
+		if(humanName == null) {
+			humanName = name.replace('_', ' ');
+			humanName = humanName.substring(0, 1).toUpperCase()+humanName.substring(1);
+		}
 		this.hidden = hidden;
 		this.humanName = humanName;
 		this.humanFk = humanFk;
+		this.marked = marked;
 	}
 
 	@Override
@@ -143,5 +151,9 @@ public class ColumnModel {
 
 	public boolean isHumanFk() {
 		return humanFk;
+	}
+
+	public boolean isMarked() {
+		return marked;
 	}
 }

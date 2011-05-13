@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Scanner;
 
 /**
  * User: aleks
@@ -17,6 +18,7 @@ public class TableModel {
 	private final Connection db;
 	protected final String tableName;
 	protected final String tableHumanName;
+	private final boolean hidden;
 
 	protected final LinkedHashMap<String, ColumnModel> columns = new LinkedHashMap<String, ColumnModel>();
 	protected final ArrayList<ColumnModel> primaryKeys = new ArrayList<ColumnModel>();
@@ -25,8 +27,63 @@ public class TableModel {
 	public TableModel(Connection db, String tableName) throws SQLException {
 		this.db = db;
 		this.tableName = tableName;
-		// TODO: Get table human name fro remarks
-		this.tableHumanName = this.tableName;
+
+		// Parse table remarks
+		boolean hidden = false;
+		String humanTableName = null;
+
+		while(true) { // Using while here as IF + GOTO replacement =)
+			DatabaseMetaData meta = this.db.getMetaData();
+			ResultSet tableMeta = meta.getTables(this.db.getCatalog(), null, this.tableName, new String[] {"TABLE"});
+			if(!tableMeta.next()) {
+				break;
+			}
+			String remarks = tableMeta.getString("REMARKS");
+//			System.out.println("Remarks: "+remarks);
+			// Initialize parser
+			Scanner s = new Scanner(remarks);
+			s.useDelimiter(";");
+
+			// Check if parsing is possible and REMARKS are tagged with magic UNITABLE tag.
+			if(!s.hasNext()) {
+				break;
+			}
+			String magicTag = s.next();
+			if(!magicTag.toUpperCase().equals("UNITABLE")) {
+				break;
+			}
+
+			// Loop through tags
+			while(s.hasNext()) {
+				// Get next tag
+				String tag = s.next(); // Tag name
+				String value = null; // Tag value for tags which have it
+
+				// Detect if tag has value
+				if(tag.indexOf('=') != -1) {
+					String[] parts = tag.split("=", 2);
+					tag = parts[0];
+					value = parts[1];
+				}
+
+				// Fix tag case
+				tag = tag.toUpperCase();
+
+				if (tag.equals("HIDDEN")) {
+					hidden = true;
+				}
+				else if(tag.equals("HUMAN_NAME") && value != null) {
+					humanTableName = value;
+				}
+			}
+			break;
+		}
+		if(humanTableName == null) {
+			humanTableName = tableName.replace('_', ' ');
+			humanTableName = humanTableName.substring(0, 1).toUpperCase()+humanTableName.substring(1);
+		}
+		this.tableHumanName = humanTableName;
+		this.hidden = hidden;
 		this.loadTableSchema();
 	}
 
@@ -90,10 +147,28 @@ public class TableModel {
 		return tableHumanName;
 	}
 
+	public boolean isHidden() {
+		return hidden;
+	}
+
+	private String exportComments() {
+		StringBuffer buf = new StringBuffer();
+		buf.append("UNITABLE;");
+		if(this.hidden) {
+			buf.append("HIDDEN;");
+		}
+		if(!this.tableHumanName.equals(this.tableName)) {
+			buf.append("HUMAN_NAME=");
+			buf.append(this.tableHumanName);
+		}
+		return buf.toString();
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer s = new StringBuffer();
 		s.append("Table name: " + this.tableName + '\n');
+		s.append("TableComments: " + this.exportComments()+'\n');
 		s.append("Columns:\n");
 		for (ColumnModel c : this.columns.values()) {
 			s.append('\t' + c.toString() + '\n');

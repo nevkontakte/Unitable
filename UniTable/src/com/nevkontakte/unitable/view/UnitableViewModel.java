@@ -28,7 +28,8 @@ public class UnitableViewModel extends AbstractTableModel {
 
 		int i = 0;
 		for(ColumnModel column : this.tableData.getTableModel().getColumns().values()) {
-			if(!column.isHidden()) {
+			if( (column.isMarked() && (!column.isHidden())) ||
+					((!column.isMarked()) && (!this.tableData.getTableModel().getPrimaryKeys().contains(column)))) {
 				DbViewColumnModel viewModel;
 				ForeignKeyModel fk = this.tableData.getTableModel().getForeignKey(column);
 				if(fk != null) {
