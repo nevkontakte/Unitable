@@ -21,6 +21,7 @@ public class TableData {
 		Connection db = this.tableModel.getDb();
 		this.tableContents = new UnitableRowSet(db);
 		this.tableContents.setConcurrency(UnitableRowSet.CONCUR_UPDATABLE);
+		this.tableContents.setType(UnitableRowSet.TYPE_SCROLL_SENSITIVE);
 		this.tableContents.setReadOnly(false);
 		this.tableContents.setCommand(this.buildSelectCommand());
 		this.tableJoinedContents = new UnitableRowSet(db);
@@ -76,7 +77,7 @@ public class TableData {
 			fragmentCount++;
 		}
 		// TODO: Add ORDER BY primary key
-		return String.format("SELECT %s FROM %s;", columnString.toString(), this.quoteIdentifier(this.tableModel.getTableName()));
+		return String.format("SELECT %s FROM %s", columnString.toString(), this.quoteIdentifier(this.tableModel.getTableName()));
 	}
 
 	private String buildJoinedSelectCommand() throws SQLException {
@@ -113,7 +114,7 @@ public class TableData {
 		}
 
 		// TODO: Add ORDER BY primary key
-		return String.format("SELECT %s FROM (%s) %s;", columnString.toString(), this.quoteIdentifier(this.tableModel.getTableName()), joinString.toString());
+		return String.format("SELECT %s FROM (%s) %s", columnString.toString(), this.quoteIdentifier(this.tableModel.getTableName()), joinString.toString());
 	}
 
 	private String quoteIdentifier(String identifier) throws SQLException {

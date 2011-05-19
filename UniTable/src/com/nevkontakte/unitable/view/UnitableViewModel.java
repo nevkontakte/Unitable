@@ -111,7 +111,6 @@ public class UnitableViewModel extends AbstractTableModel {
 				correction++;
 			}
 		}
-		
 		this.deleteColumn.reset();
 		this.getTableData().getTableContents(true).scheduleReExecution();
 		this.fireTableChanged(null);

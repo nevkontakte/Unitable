@@ -1,6 +1,9 @@
 package com.nevkontakte.unitable.client;
 
+import oracle.jdbc.OracleDriver;
+
 import javax.swing.*;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -29,12 +32,17 @@ public class ClientMain {
 			mainWindow.setVisible(true);
 		}
 		*/
+		Locale.setDefault(Locale.ENGLISH);
+		DriverManager.registerDriver(new OracleDriver());
 		Properties props = new Properties();
-		props.put("user", "root");
+		props.put("user", "unitable");
 		props.put("password", "mpwd2007");
 		props.put("useUnicode","true");
+		props.put("remarks", "true");
 		props.put("characterEncoding", "utf8");
-		MainFrame mainWindow = new MainFrame(DriverManager.getConnection("jdbc:mysql://localhost/unitable", props));
+		Connection db = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", props);
+		//Connection db = DriverManager.getConnection("jdbc:mysql://localhost/unitable", props);
+		MainFrame mainWindow = new MainFrame(db);
 		mainWindow.setVisible(true);
 	}
 }

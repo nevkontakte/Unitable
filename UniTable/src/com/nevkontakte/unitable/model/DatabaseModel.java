@@ -21,10 +21,11 @@ public class DatabaseModel {
 	public DatabaseModel(Connection db) throws SQLException {
 		this.db = db;
 		DatabaseMetaData meta = this.db.getMetaData();
-		ResultSet tables = meta.getTables(this.db.getCatalog(), null, null, null);
+		ResultSet tables = meta.getTables(this.db.getCatalog(), meta.getUserName(), null, null);
 		while(tables.next()) {
 			this.tables.add(tables.getString("TABLE_NAME"));
 		}
+		tables.close();
 		this.catalog = this.db.getCatalog();
 	}
 

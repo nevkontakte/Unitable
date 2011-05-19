@@ -39,6 +39,9 @@ public class TableModel {
 				break;
 			}
 			String remarks = tableMeta.getString("REMARKS");
+			if (remarks == null) {
+				break;
+			}
 //			System.out.println("Remarks: "+remarks);
 			// Initialize parser
 			Scanner s = new Scanner(remarks);
@@ -76,6 +79,7 @@ public class TableModel {
 					humanTableName = value;
 				}
 			}
+			tableMeta.close();
 			break;
 		}
 		if(humanTableName == null) {
