@@ -83,7 +83,7 @@ public class ColumnModel {
 			break;
 		}
 		if(humanName == null) {
-			humanName = name.replace('_', ' ');
+			humanName = name.replace('_', ' ').toLowerCase();
 			humanName = humanName.substring(0, 1).toUpperCase()+humanName.substring(1);
 		}
 		this.hidden = hidden;

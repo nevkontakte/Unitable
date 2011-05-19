@@ -83,7 +83,7 @@ public class TableModel {
 			break;
 		}
 		if(humanTableName == null) {
-			humanTableName = tableName.replace('_', ' ');
+			humanTableName = tableName.replace('_', ' ').toLowerCase();
 			humanTableName = humanTableName.substring(0, 1).toUpperCase()+humanTableName.substring(1);
 		}
 		this.tableHumanName = humanTableName;
