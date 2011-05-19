@@ -3,6 +3,8 @@ package com.nevkontakte.unitable.client.reports;
 import com.nevkontakte.unitable.model.UnitableRowSet;
 
 import javax.sql.rowset.JdbcRowSet;
+import javax.swing.*;
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -13,9 +15,18 @@ import java.sql.SQLException;
  * Time: 22:30
  */
 public class StudentsReport extends BasicReport{
-	public StudentsReport(Connection db) {
-		super(db);
-		this.hidden = true;
+	public StudentsReport(Window parent, Connection db) {
+		super(parent, db);
+		this.hidden = false;
+		JLabel groupL = new JLabel("Group:");
+		JTextField group = new JTextField();
+		group.setColumns(15);
+		group.setToolTipText("Group numbers separated by comma");
+		this.addToForm(groupL);
+		this.addToForm(group);
+
+		this.layoutForm(1, 2);
+		this.pack();
 	}
 
 	@Override

@@ -71,8 +71,8 @@ public class MainFrame extends JFrame{
 
 		// Reports
 		JMenu reportMenu = new JMenu("Reports");
-		reportMenu.add(new JMenuItem(new ReportShowAction(new BasicReport(this.db))));
-		reportMenu.add(new JMenuItem(new ReportShowAction(new StudentsReport(this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new BasicReport(this, this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new StudentsReport(this, this.db))));
 
 		menu.add(reportMenu);
 
