@@ -172,6 +172,10 @@ public class UnitableFkSelector extends JComboBox {
 			if(this.candidate != -1 && field.getFont().canDisplay(e.getKeyCode())) {
 				autoComplete(this.candidate);
 			}
+
+			if(isPopupVisible()) {
+				e.consume();
+			}
 		}
 	}
 }

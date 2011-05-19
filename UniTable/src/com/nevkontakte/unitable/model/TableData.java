@@ -141,7 +141,7 @@ public class TableData {
 			StringBuffer value = new StringBuffer();
 			int fragments = 0;
 			for(ColumnModel column : this.tableModel.getColumns().values()) {
-				if(!column.isHumanFk()) {
+				if(!column.isHumanFk() || this.tableModel.getForeignKey(column) != null) {
 					continue;
 				}
 				
@@ -150,6 +150,20 @@ public class TableData {
 				}
 				value.append(data.getString(column.getName()));
 				fragments ++ ;
+			}
+			for(ForeignKeyModel fk : this.tableModel.getForeignKeys()) {
+				TableModel fkTable = TableModel.get(this.tableModel.getDb(), fk.getPkTableName());
+				for(String fkColumn : fkTable.getColumns().keySet()) {
+					if(!fkTable.getColumns().get(fkColumn).isHumanFk()) {
+						continue;
+					}
+
+					if(fragments > 0) {
+						value.append(", ");
+					}
+					value.append(data.getString(fkColumn));
+					fragments ++ ;
+				}
 			}
 			return value.toString();
 		} catch (SQLException e) {
