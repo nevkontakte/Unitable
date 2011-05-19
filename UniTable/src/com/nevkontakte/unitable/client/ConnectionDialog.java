@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,9 +26,11 @@ public class ConnectionDialog extends JDialog{
 	private Status status = Status.EXIT;
 	private Connection connection = null;
 	private String url;
+	private Properties props;
 
-	public ConnectionDialog(String url) {
+	public ConnectionDialog(String url, Properties props) {
 		this.url = url;
+		this.props = props;
 		this.login.setColumns(15);
 		this.password.setColumns(15);
 		KeyAdapter submitter = new KeyAdapter() {
@@ -74,7 +77,9 @@ public class ConnectionDialog extends JDialog{
 
 	private void onOk() {
 		try {
-			this.connection = DriverManager.getConnection(this.url, this.login.getText(), String.valueOf(this.password.getPassword()));
+			this.props.put("user", this.login.getText());
+			this.props.put("password", String.valueOf(this.password.getPassword()));
+			this.connection = DriverManager.getConnection(this.url, props);
 		} catch (SQLException e) {
 			// TODO: Add details to error message
 			System.err.println(e.getLocalizedMessage());
