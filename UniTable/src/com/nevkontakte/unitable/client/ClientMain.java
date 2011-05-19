@@ -48,15 +48,5 @@ public class ClientMain {
 				}
 			}).run();
 		}
-
-		/*
-		Quick start for debugging
-		props.put("user", "unitable");
-		props.put("password", "unitable");
-		Connection db = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", props);
-		//Connection db = DriverManager.getConnection("jdbc:mysql://localhost/unitable", props);
-		MainFrame mainWindow = new MainFrame(db);
-		mainWindow.setVisible(true);
-		*/
 	}
 }
