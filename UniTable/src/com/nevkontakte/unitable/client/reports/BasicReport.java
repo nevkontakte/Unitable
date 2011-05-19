@@ -7,6 +7,8 @@ import javax.sql.rowset.JdbcRowSet;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -87,7 +89,16 @@ public class BasicReport extends JDialog implements ReportParametersDialog{
 		super.setVisible(b);
 	}
 
-	protected void addToForm(Component c) {
+	protected void addToForm(final Component c) {
+		KeyAdapter l = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					onOk();
+				}
+			}
+		};
+		c.addKeyListener(l);
 		this.controls.add(c);
 	}
 
