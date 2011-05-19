@@ -1,4 +1,4 @@
-package com.nevkontakte.unitable.client.reports;
+package com.nevkontakte.unitable.client;
 
 import javax.swing.*;
 import java.awt.*;

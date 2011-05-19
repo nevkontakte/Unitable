@@ -1,6 +1,5 @@
 package com.nevkontakte.unitable.client;
 
-import com.nevkontakte.unitable.client.reports.ProgressBarDialog;
 import oracle.jdbc.OracleDriver;
 
 import javax.swing.*;
