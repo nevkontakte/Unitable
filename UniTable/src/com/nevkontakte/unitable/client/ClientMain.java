@@ -1,5 +1,6 @@
 package com.nevkontakte.unitable.client;
 
+import com.nevkontakte.unitable.client.reports.ProgressBarDialog;
 import oracle.jdbc.OracleDriver;
 
 import javax.swing.*;
@@ -29,11 +30,24 @@ public class ClientMain {
 		props.put("remarks", "true");
 		props.put("characterEncoding", "utf8");
 
-		ConnectionDialog connect = new ConnectionDialog("jdbc:oracle:thin:@localhost:1521:XE", props);
+		final ConnectionDialog connect = new ConnectionDialog("jdbc:oracle:thin:@localhost:1521:XE", props);
 		connect.setVisible(true);
+
 		if(connect.getStatus() == ConnectionDialog.Status.CONNECTED) {
-			MainFrame mainWindow = new MainFrame(connect.getConnection());
-			mainWindow.setVisible(true);
+			final ProgressBarDialog idle = new ProgressBarDialog(connect, "Connecting to database...");
+			idle.setVisible(true);
+			new Thread(new Runnable() {
+				public void run() {
+					final MainFrame mainWindow = new MainFrame(connect.getConnection());
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							mainWindow.setVisible(true);
+							idle.setVisible(false);
+							idle.dispose();
+						}
+					});
+				}
+			}).run();
 		}
 
 		/*
