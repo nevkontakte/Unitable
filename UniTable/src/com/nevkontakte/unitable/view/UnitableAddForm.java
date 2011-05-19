@@ -1,10 +1,7 @@
 package com.nevkontakte.unitable.view;
 
 import com.nevkontakte.unitable.foreign.SpringUtilities;
-import com.nevkontakte.unitable.model.ColumnModel;
-import com.nevkontakte.unitable.model.ForeignKeyModel;
-import com.nevkontakte.unitable.model.TableData;
-import com.nevkontakte.unitable.model.TableModel;
+import com.nevkontakte.unitable.model.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -145,10 +142,12 @@ public class UnitableAddForm extends JPanel{
 
 				try {
 					model.getTableData().insertRow(values);
-					int newRow = model.getTableData().getTableContents(false).getRow()-1;
-					model.fireTableRowsInserted(newRow, newRow);
+					int newRow = model.getTableData().getTableContents(false).getRow();
 					model.getTableData().getTableContents(true).scheduleReExecution();
-					
+					model.getTableData().getTableContents(false).scheduleReExecution();
+					model.getTableData().getTableContents(false).absolute(newRow);
+					model.fireTableRowsInserted(newRow-1, newRow-1);
+
 					for(String columnName : fields.keySet()) {
 						JComponent genericField = fields.get(columnName);
 						if(genericField instanceof JFormattedTextField) {

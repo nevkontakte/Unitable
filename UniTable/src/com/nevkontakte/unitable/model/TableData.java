@@ -21,7 +21,7 @@ public class TableData {
 		Connection db = this.tableModel.getDb();
 		this.tableContents = new UnitableRowSet(db);
 		this.tableContents.setConcurrency(UnitableRowSet.CONCUR_UPDATABLE);
-		this.tableContents.setType(UnitableRowSet.TYPE_SCROLL_SENSITIVE);
+		this.tableContents.setType(UnitableRowSet.TYPE_SCROLL_INSENSITIVE);
 		this.tableContents.setReadOnly(false);
 		this.tableContents.setCommand(this.buildSelectCommand());
 		this.tableJoinedContents = new UnitableRowSet(db);
@@ -44,17 +44,7 @@ public class TableData {
 
 	public int getRowCount() throws SQLException {
 		this.tableContents.executeOnce();
-		int backupRow = this.tableContents.getRow();
-
-		int rowCount = this.tableContents.last() ? this.tableContents.getRow() : 0;
-
-		// Restore position
-		if (backupRow == 0) {
-			this.tableContents.beforeFirst();
-		} else {
-			this.tableContents.absolute(backupRow);
-		}
-		return rowCount;
+		return this.tableContents.getRowCount();
 	}
 
 	public void insertRow(Map<String, Object> values) throws SQLException {
