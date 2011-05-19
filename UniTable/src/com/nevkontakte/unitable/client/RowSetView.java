@@ -52,12 +52,17 @@ public class RowSetView extends JPanel{
 
 		public String getColumnName(int columnIndex) {
 			try {
-				return data.getMetaData().getColumnName(columnIndex+1);
+				return this.humanize(data.getMetaData().getColumnName(columnIndex+1));
 			} catch (SQLException e) {
 				// TODO: Error handling
 				e.printStackTrace();
 				return "";
 			}
+		}
+
+		private String humanize(String columnName) {
+			columnName = columnName.replace('_', ' ').toLowerCase();
+			return columnName.substring(0, 1).toUpperCase()+columnName.substring(1);
 		}
 
 		public Class<?> getColumnClass(int columnIndex) {
