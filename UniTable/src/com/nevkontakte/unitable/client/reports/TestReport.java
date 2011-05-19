@@ -31,7 +31,6 @@ public class TestReport extends JDialog implements ReportParametersDialog{
 		UnitableRowSet query = new UnitableRowSet(db);
 		query.setType(JdbcRowSet.TYPE_SCROLL_INSENSITIVE);
 		query.setCommand("SELECT * FROM faculty");
-		query.execute();
 		return query;
 	}
 

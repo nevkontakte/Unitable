@@ -27,6 +27,7 @@ import java.sql.SQLException;
 public class MainFrame extends JFrame{
 	protected final Connection db;
 	protected final JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+	protected final JProgressBar idle = new JProgressBar(0, 100);
 
 	public MainFrame(Connection db) throws HeadlessException {
 		this.db = db;
@@ -34,10 +35,16 @@ public class MainFrame extends JFrame{
 		this.setPreferredSize(new Dimension(900, 500));
 		this.setSize(this.getPreferredSize());
 		this.setLocationRelativeTo(null);
-		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setTitle("Unitable Client");
 
 		this.add(this.tabs);
+
+		// Status bar
+		JPanel status = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		this.idle.setEnabled(false);
+		status.add(this.idle);
+		this.add(status, BorderLayout.SOUTH);
 
 		// Initialize menu
 		JMenuBar menu = new JMenuBar();
@@ -75,40 +82,68 @@ public class MainFrame extends JFrame{
 		this.dispose();
 	}
 
-	protected void onTableEdit(TableModel model) {
+	protected void onTableEdit(final TableModel model) {
 		int index = this.tabs.indexOfTab(model.getTableHumanName());
 		if(index == -1) {
-			try {
-				UnitableViewModel viewModel = new UnitableViewModel(new TableData(model));
-				this.tabs.addTab(model.getTableHumanName(), new UnitableView(viewModel));
-				this.tabs.setTabComponentAt(this.tabs.getTabCount()-1, new CloseTabComponent(model.getTableHumanName()));
-				this.tabs.setSelectedIndex(this.tabs.getTabCount()-1);
-			} catch (SQLException e) {
-				// TODO: Handle exception
-				e.printStackTrace();
-			}
+			this.setIdle(true);
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						final UnitableViewModel viewModel = new UnitableViewModel(new TableData(model));
+						final UnitableView component = new UnitableView(viewModel);
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								tabs.addTab(model.getTableHumanName(), component);
+								tabs.setTabComponentAt(tabs.getTabCount() - 1, new CloseTabComponent(model.getTableHumanName()));
+								tabs.setSelectedIndex(tabs.getTabCount() - 1);
+								setIdle(false);
+							}
+						});
+					} catch (SQLException e) {
+						// TODO: Handle exception
+						e.printStackTrace();
+					}
+				}
+			}).run();
 		}
 		else {
 			this.tabs.setSelectedIndex(index);
 		}
 	}
 
-	protected void onReportView(ReportParametersDialog dialog) {
+	protected void onReportView(final ReportParametersDialog dialog) {
 		dialog.setVisible(true);
 		if(!dialog.isOk()) {
 			return;
 		}
-		try {
-			UnitableRowSet rowSet = dialog.buildQuery();
-			this.tabs.addTab(dialog.getReportName(), new RowSetView(rowSet));
-			this.tabs.setTabComponentAt(this.tabs.getTabCount()-1, new CloseTabComponent(dialog.getReportName()));
-			this.tabs.setSelectedIndex(this.tabs.getTabCount()-1);
-		} catch (SQLException e) {
-			// TODO: Error handling
-			e.printStackTrace();
-		}
+		this.setIdle(true);
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					UnitableRowSet rowSet = dialog.buildQuery();
+					rowSet.executeOnce();
+					final RowSetView component = new RowSetView(rowSet);
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							tabs.addTab(dialog.getReportName(), component);
+							tabs.setTabComponentAt(tabs.getTabCount() - 1, new CloseTabComponent(dialog.getReportName()));
+							tabs.setSelectedIndex(tabs.getTabCount() - 1);
+							setIdle(false);
+						}
+					});
+				} catch (SQLException e) {
+					// TODO: Error handling
+					e.printStackTrace();
+				}
+			}
+		}).run();
 	}
 
+	protected void setIdle(boolean status) {
+		this.idle.setEnabled(status);
+		this.idle.setIndeterminate(status);
+	}
+	
 	private class ReportShowAction extends AbstractAction {
 		private ReportParametersDialog dialog;
 		private ReportShowAction(ReportParametersDialog dialog) {
