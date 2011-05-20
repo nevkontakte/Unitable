@@ -7,10 +7,12 @@ import com.nevkontakte.unitable.view.UnitableFkSelector;
 
 import javax.sql.rowset.JdbcRowSet;
 import javax.swing.*;
+import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.ParseException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -54,7 +56,63 @@ public class StudentsReport extends BasicReport{
 		this.addToForm(grade);
 		this.addToForm(gradeC);
 
-		this.layoutForm(2, 3);
+		// Children filtering
+		JLabel childL = new JLabel("Children:");
+		final JSpinner child = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
+		child.setEnabled(false);
+		final JCheckBox childC = new JCheckBox();
+		childC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				child.setEnabled(childC.isSelected());
+			}
+		});
+		this.addToForm(childL);
+		this.addToForm(child);
+		this.addToForm(childC);
+
+		// Stipend filtering
+		try {
+			JLabel stipendL = new JLabel("Stipend:");
+			final JFormattedTextField stipend;
+			stipend = new JFormattedTextField(new MaskFormatter("#####-#####"));
+			stipend.setToolTipText("Format: XXXXX-XXXXX");
+			stipend.setColumns(15);
+			stipend.setEnabled(false);
+			final JCheckBox stipendC = new JCheckBox();
+			stipendC.setAction(new AbstractAction() {
+				public void actionPerformed(ActionEvent e) {
+					stipend.setEnabled(stipendC.isSelected());
+				}
+			});
+			this.addToForm(stipendL);
+			this.addToForm(stipend);
+			this.addToForm(stipendC);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		// Birth filtering
+		try {
+			JLabel yearL = new JLabel("Year:");
+			final JFormattedTextField year;
+			year = new JFormattedTextField(new MaskFormatter("####-####"));
+			year.setToolTipText("Format: YYYY-YYYY");
+			year.setColumns(15);
+			year.setEnabled(false);
+			final JCheckBox yearC = new JCheckBox();
+			yearC.setAction(new AbstractAction() {
+				public void actionPerformed(ActionEvent e) {
+					year.setEnabled(yearC.isSelected());
+				}
+			});
+			this.addToForm(yearL);
+			this.addToForm(year);
+			this.addToForm(yearC);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		this.layoutForm(5, 3);
 		this.pack();
 	}
 
@@ -68,7 +126,7 @@ public class StudentsReport extends BasicReport{
 		UnitableRowSet query = new UnitableRowSet(db);
 		query.setType(JdbcRowSet.TYPE_SCROLL_INSENSITIVE);
 		String sql =
-				"SELECT people_fname, people_mname, people_lname, people_gender, people_birth, people_children_number, group_number " +
+				"SELECT people_fname, people_mname, people_lname, people_gender, people_birth, people_children_number, group_number, student_stipend " +
 						"FROM student s " +
 						"LEFT JOIN people p ON s.people_id = p.people_id " +
 						"LEFT JOIN group_ g ON g.group_id = s.group_id";
