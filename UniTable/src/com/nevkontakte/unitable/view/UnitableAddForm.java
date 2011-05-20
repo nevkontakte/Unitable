@@ -160,6 +160,7 @@ public class UnitableAddForm extends JPanel{
 						}
 					}
 				} catch (SQLException e1) {
+					e1.printStackTrace();
 					JOptionPane.showMessageDialog(UnitableAddForm.this, "Row can't be added: "+e1.getLocalizedMessage(), "Edit error", JOptionPane.ERROR_MESSAGE);
 				}
 			}

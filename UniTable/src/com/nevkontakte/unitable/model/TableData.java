@@ -2,6 +2,8 @@ package com.nevkontakte.unitable.model;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,7 +52,13 @@ public class TableData {
 	public void insertRow(Map<String, Object> values) throws SQLException {
 		this.tableContents.moveToInsertRow();
 		for(String column : values.keySet()) {
-			this.tableContents.updateObject(column, values.get(column));
+			Object value = values.get(column);
+			if(value instanceof Date) {
+				Timestamp t = new Timestamp(((Date) value).getTime());
+				this.tableContents.updateTimestamp(column, t);
+			} else {
+				this.tableContents.updateObject(column, value);
+			}
 		}
 		this.tableContents.insertRow();
 	}
