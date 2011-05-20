@@ -1,5 +1,6 @@
 package com.nevkontakte.unitable.client.reports;
 
+import com.nevkontakte.unitable.client.RowSetComboBoxModel;
 import com.nevkontakte.unitable.model.TableData;
 import com.nevkontakte.unitable.model.TableModel;
 import com.nevkontakte.unitable.model.UnitableRowSet;
@@ -30,6 +31,7 @@ public class StudentsReport extends BasicReport{
 	private JSpinner stipendLo;
 	private JSpinner yearGr;
 	private JSpinner yearLo;
+	private JComboBox gender;
 
 	public StudentsReport(Window parent, Connection db) throws SQLException {
 		super(parent, db);
@@ -66,34 +68,6 @@ public class StudentsReport extends BasicReport{
 		this.addToForm(grade);
 		this.addToForm(gradeC);
 
-		// Children filtering
-		JLabel childGrL = new JLabel("Children ≥");
-		childGr = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
-		childGr.setEnabled(false);
-		final JCheckBox childGrC = new JCheckBox();
-		childGrC.setAction(new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				childGr.setEnabled(childGrC.isSelected());
-			}
-		});
-		this.addToForm(childGrL);
-		this.addToForm(childGr);
-		this.addToForm(childGrC);
-
-		// Children filtering
-		JLabel childLoL = new JLabel("Children ≤");
-		childLo = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
-		childLo.setEnabled(false);
-		final JCheckBox childLoC = new JCheckBox();
-		childLoC.setAction(new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				childLo.setEnabled(childLoC.isSelected());
-			}
-		});
-		this.addToForm(childLoL);
-		this.addToForm(childLo);
-		this.addToForm(childLoC);
-
 		// Stipend filtering
 		JLabel stipendGrL = new JLabel("Stipend ≥");
 		stipendGr = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 100));
@@ -122,9 +96,53 @@ public class StudentsReport extends BasicReport{
 		this.addToForm(stipendLo);
 		this.addToForm(stipendLoC);
 
+		// Gender filtering
+		UnitableRowSet genders = new UnitableRowSet(db);
+		genders.setCommand("SELECT DISTINCT people_gender FROM people");
+		JLabel genderL = new JLabel("Gender:");
+		gender = new JComboBox(new RowSetComboBoxModel(genders));
+		gender.setEnabled(false);
+		final JCheckBox genderC = new JCheckBox();
+		genderC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				gender.setEnabled(genderC.isSelected());
+			}
+		});
+		this.addToForm(genderL);
+		this.addToForm(gender);
+		this.addToForm(genderC);
+
+		// Children filtering
+		JLabel childGrL = new JLabel("Children ≥");
+		childGr = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
+		childGr.setEnabled(false);
+		final JCheckBox childGrC = new JCheckBox();
+		childGrC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				childGr.setEnabled(childGrC.isSelected());
+			}
+		});
+		this.addToForm(childGrL);
+		this.addToForm(childGr);
+		this.addToForm(childGrC);
+
+		// Children filtering
+		JLabel childLoL = new JLabel("Children ≤");
+		childLo = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
+		childLo.setEnabled(false);
+		final JCheckBox childLoC = new JCheckBox();
+		childLoC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				childLo.setEnabled(childLoC.isSelected());
+			}
+		});
+		this.addToForm(childLoL);
+		this.addToForm(childLo);
+		this.addToForm(childLoC);
+
 		// Birth filtering
 		JLabel yearGrL = new JLabel("Year ≥");
-		yearGr = new JSpinner(new SpinnerNumberModel((int)Calendar.getInstance().get(Calendar.YEAR)-20, 0, Calendar.getInstance().get(Calendar.YEAR)+1, 1));
+		yearGr = new JSpinner(new SpinnerNumberModel(Calendar.getInstance().get(Calendar.YEAR) -20, 0, Calendar.getInstance().get(Calendar.YEAR)+1, 1));
 		yearGr.setEditor(new JSpinner.NumberEditor(yearGr, "#"));
 		yearGr.setEnabled(false);
 		final JCheckBox yearGrC = new JCheckBox();
@@ -137,12 +155,9 @@ public class StudentsReport extends BasicReport{
 		this.addToForm(yearGr);
 		this.addToForm(yearGrC);
 
-		this.layoutForm(7, 3);
-		this.pack();
-
 		// Birth filtering
 		JLabel yearLoL = new JLabel("Year ≤");
-		yearLo = new JSpinner(new SpinnerNumberModel((int)Calendar.getInstance().get(Calendar.YEAR)-10, 0, (int)Calendar.getInstance().get(Calendar.YEAR)+1, 1));
+		yearLo = new JSpinner(new SpinnerNumberModel(Calendar.getInstance().get(Calendar.YEAR) -10, 0, Calendar.getInstance().get(Calendar.YEAR) +1, 1));
 		yearLo.setEditor(new JSpinner.NumberEditor(yearLo, "#"));
 		yearLo.setEnabled(false);
 		final JCheckBox yearLoC = new JCheckBox();
@@ -155,7 +170,7 @@ public class StudentsReport extends BasicReport{
 		this.addToForm(yearLo);
 		this.addToForm(yearLoC);
 
-		this.layoutForm(8, 3);
+		this.layoutForm(9, 3);
 		this.pack();
 	}
 
@@ -224,6 +239,11 @@ public class StudentsReport extends BasicReport{
 		if(this.yearLo.isEnabled()) {
 			int yearLo = (Integer) this.yearLo.getValue();
 			where.add(String.format("people_birth < TO_DATE('%d', 'YYYY')", yearLo+1));
+		}
+
+		if(this.gender.isEnabled()) {
+			String gender = this.gender.getSelectedItem().toString().replace("'", "\\'");
+			where.add(String.format("people_gender = '%s'", gender));
 		}
 
 		if(where.size() > 0) {
