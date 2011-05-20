@@ -247,21 +247,4 @@ public class TeachersReport extends BasicReport{
 		query.setCommand(sql);
 		return query;
 	}
-
-	private String joinStrings(String[] strings, String delimiter) {
-		StringBuilder joined = new StringBuilder();
-		for(int i = 0; i < strings.length; i++) {
-			if(i > 0) {
-				joined.append(delimiter);
-			}
-			joined.append(strings[i]);
-		}
-		return joined.toString();
-	}
-
-	private String joinStrings(ArrayList<String> strings, String delimiter) {
-		String[] s = new String[strings.size()];
-		strings.toArray(s);
-		return this.joinStrings(s, delimiter);
-	}
 }

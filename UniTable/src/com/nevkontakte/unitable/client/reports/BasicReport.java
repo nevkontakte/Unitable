@@ -11,6 +11,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -82,7 +83,7 @@ public class BasicReport extends JDialog implements ReportParametersDialog{
 
 	@Override
 	public void setVisible(boolean b) {
-		if(b == true && this.hidden) {
+		if(b && this.hidden) {
 			b = false;
 		}
 		this.setLocationRelativeTo(this.getParent());
@@ -104,5 +105,22 @@ public class BasicReport extends JDialog implements ReportParametersDialog{
 
 	protected void layoutForm(int rows, int cols) {
 		SpringUtilities.makeCompactGrid(this.controls, rows, cols, PAD, PAD, PAD, PAD);
+	}
+	
+	protected String joinStrings(String[] strings, String delimiter) {
+		StringBuilder joined = new StringBuilder();
+		for(int i = 0; i < strings.length; i++) {
+			if(i > 0) {
+				joined.append(delimiter);
+			}
+			joined.append(strings[i]);
+		}
+		return joined.toString();
+	}
+
+	protected String joinStrings(ArrayList<String> strings, String delimiter) {
+		String[] s = new String[strings.size()];
+		strings.toArray(s);
+		return this.joinStrings(s, delimiter);
 	}
 }
