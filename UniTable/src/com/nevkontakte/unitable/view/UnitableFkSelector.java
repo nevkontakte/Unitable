@@ -10,6 +10,7 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.LinkedList;
 
@@ -20,12 +21,10 @@ import java.util.LinkedList;
  * Time: 17:16
  */
 public class UnitableFkSelector extends JComboBox {
-	private TableData data;
 	private FkSelectorModel model;
 	private boolean isAutoCompleting = false;
 
 	public UnitableFkSelector(TableData data) {
-		this.data = data;
 		model = new FkSelectorModel(data);
 		this.setModel(model);
 		final JTextField field = (JTextField) this.getEditor().getEditorComponent();
@@ -88,7 +87,14 @@ public class UnitableFkSelector extends JComboBox {
 
 	public void setSelectedForeignKey(Object key) {
 		for(int i = 0; i < this.model.getSize(); i++) {
-			if(key.equals(this.model.getElementAt(i).getId())) {
+			boolean equals;
+			Integer id = this.model.getElementAt(i).getId();
+			if(key instanceof BigDecimal) {
+				equals = BigDecimal.valueOf(id).compareTo((BigDecimal) key) == 0;
+			} else {
+				equals = key.equals(id);
+			}
+			if(equals) {
 				this.setSelectedIndex(i);
 				JTextField field = (JTextField) this.getEditor().getEditorComponent();
 				field.setCaretPosition(field.getText().length());
