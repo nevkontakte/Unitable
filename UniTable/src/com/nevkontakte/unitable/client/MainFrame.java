@@ -85,6 +85,11 @@ public class MainFrame extends JFrame{
 		} catch (SQLException e) {
 			// Ignore buggy report
 		}
+		try {
+			reportMenu.add(new JMenuItem(new ReportShowAction(new TeachingDepartmentsReport(this, this.db))));
+		} catch (SQLException e) {
+			// Ignore buggy report
+		}
 
 		menu.add(reportMenu);
 
