@@ -70,6 +70,8 @@ public class RowSetView extends JPanel{
 				this.data.absolute(1);
 				return this.data.getObject(columnIndex+1).getClass();
 			} catch (SQLException e) {
+				// Do nothing
+			} catch (NullPointerException e) {
 			}
 			return String.class;
 		}
