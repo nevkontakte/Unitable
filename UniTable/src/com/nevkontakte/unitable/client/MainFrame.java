@@ -69,7 +69,7 @@ public class MainFrame extends JFrame{
 
 		// Reports
 		JMenu reportMenu = new JMenu("Reports");
-		reportMenu.add(new JMenuItem(new ReportShowAction(new BasicReport(this, this.db))));
+		//reportMenu.add(new JMenuItem(new ReportShowAction(new BasicReport(this, this.db))));
 		try {
 			reportMenu.add(new JMenuItem(new ReportShowAction(new StudentsReport(this, this.db))));
 		} catch (SQLException e) {
@@ -90,6 +90,15 @@ public class MainFrame extends JFrame{
 		} catch (SQLException e) {
 			// Ignore buggy report
 		}
+		reportMenu.add(new JMenuItem(new ReportShowAction(new Examinators(this, this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new StudentsByCreditMark(this, this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new StudentsBySession(this, this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new StudentsBySupervisor(this, this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new StudentsByTeacherMark(this, this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new Supervisors(this, this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new TeacherByClassType(this, this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new TeacherBySubject(this, this.db))));
+		reportMenu.add(new JMenuItem(new ReportShowAction(new TeacherLoad(this, this.db))));
 
 		menu.add(reportMenu);
 
