@@ -7,12 +7,12 @@ import com.nevkontakte.unitable.view.UnitableFkSelector;
 
 import javax.sql.rowset.JdbcRowSet;
 import javax.swing.*;
-import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,13 +21,23 @@ import java.text.ParseException;
  * Time: 22:30
  */
 public class StudentsReport extends BasicReport{
+
+	private JTextField group;
+	private UnitableFkSelector grade;
+	private JSpinner childGr;
+	private JSpinner childLo;
+	private JSpinner stipendGr;
+	private JSpinner stipendLo;
+	private JSpinner yearGr;
+	private JSpinner yearLo;
+
 	public StudentsReport(Window parent, Connection db) throws SQLException {
 		super(parent, db);
 		this.hidden = false;
 
 		// Group filtering
 		JLabel groupL = new JLabel("Group:");
-		final JTextField group = new JTextField();
+		group = new JTextField();
 		group.setColumns(15);
 		group.setToolTipText("Group numbers separated by comma");
 		group.setEnabled(false);
@@ -43,7 +53,7 @@ public class StudentsReport extends BasicReport{
 
 		// Grade filtering
 		JLabel gradeL = new JLabel("Grade:");
-		final UnitableFkSelector grade = new UnitableFkSelector(new TableData(TableModel.get(db, "GRADE")));
+		grade = new UnitableFkSelector(new TableData(TableModel.get(db, "GRADE")));
 		grade.setEnabled(false);
 		grade.setSelectedIndex(0);
 		final JCheckBox gradeC = new JCheckBox();
@@ -57,62 +67,95 @@ public class StudentsReport extends BasicReport{
 		this.addToForm(gradeC);
 
 		// Children filtering
-		JLabel childL = new JLabel("Children:");
-		final JSpinner child = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
-		child.setEnabled(false);
-		final JCheckBox childC = new JCheckBox();
-		childC.setAction(new AbstractAction() {
+		JLabel childGrL = new JLabel("Children ≥");
+		childGr = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
+		childGr.setEnabled(false);
+		final JCheckBox childGrC = new JCheckBox();
+		childGrC.setAction(new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				child.setEnabled(childC.isSelected());
+				childGr.setEnabled(childGrC.isSelected());
 			}
 		});
-		this.addToForm(childL);
-		this.addToForm(child);
-		this.addToForm(childC);
+		this.addToForm(childGrL);
+		this.addToForm(childGr);
+		this.addToForm(childGrC);
+
+		// Children filtering
+		JLabel childLoL = new JLabel("Children ≤");
+		childLo = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
+		childLo.setEnabled(false);
+		final JCheckBox childLoC = new JCheckBox();
+		childLoC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				childLo.setEnabled(childLoC.isSelected());
+			}
+		});
+		this.addToForm(childLoL);
+		this.addToForm(childLo);
+		this.addToForm(childLoC);
 
 		// Stipend filtering
-		try {
-			JLabel stipendL = new JLabel("Stipend:");
-			final JFormattedTextField stipend;
-			stipend = new JFormattedTextField(new MaskFormatter("#####-#####"));
-			stipend.setToolTipText("Format: XXXXX-XXXXX");
-			stipend.setColumns(15);
-			stipend.setEnabled(false);
-			final JCheckBox stipendC = new JCheckBox();
-			stipendC.setAction(new AbstractAction() {
-				public void actionPerformed(ActionEvent e) {
-					stipend.setEnabled(stipendC.isSelected());
-				}
-			});
-			this.addToForm(stipendL);
-			this.addToForm(stipend);
-			this.addToForm(stipendC);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		JLabel stipendGrL = new JLabel("Stipend ≥");
+		stipendGr = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 100));
+		stipendGr.setEnabled(false);
+		final JCheckBox stipendGrC = new JCheckBox();
+		stipendGrC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				stipendGr.setEnabled(stipendGrC.isSelected());
+			}
+		});
+		this.addToForm(stipendGrL);
+		this.addToForm(stipendGr);
+		this.addToForm(stipendGrC);
+
+		// Stipend filtering
+		JLabel stipendLoL = new JLabel("Stipend ≤");
+		stipendLo = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 100));
+		stipendLo.setEnabled(false);
+		final JCheckBox stipendLoC = new JCheckBox();
+		stipendLoC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				stipendLo.setEnabled(stipendLoC.isSelected());
+			}
+		});
+		this.addToForm(stipendLoL);
+		this.addToForm(stipendLo);
+		this.addToForm(stipendLoC);
 
 		// Birth filtering
-		try {
-			JLabel yearL = new JLabel("Year:");
-			final JFormattedTextField year;
-			year = new JFormattedTextField(new MaskFormatter("####-####"));
-			year.setToolTipText("Format: YYYY-YYYY");
-			year.setColumns(15);
-			year.setEnabled(false);
-			final JCheckBox yearC = new JCheckBox();
-			yearC.setAction(new AbstractAction() {
-				public void actionPerformed(ActionEvent e) {
-					year.setEnabled(yearC.isSelected());
-				}
-			});
-			this.addToForm(yearL);
-			this.addToForm(year);
-			this.addToForm(yearC);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		JLabel yearGrL = new JLabel("Year ≥");
+		yearGr = new JSpinner(new SpinnerNumberModel((int)Calendar.getInstance().get(Calendar.YEAR)-20, 0, Calendar.getInstance().get(Calendar.YEAR)+1, 1));
+		yearGr.setEditor(new JSpinner.NumberEditor(yearGr, "#"));
+		yearGr.setEnabled(false);
+		final JCheckBox yearGrC = new JCheckBox();
+		yearGrC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				yearGr.setEnabled(yearGrC.isSelected());
+			}
+		});
+		this.addToForm(yearGrL);
+		this.addToForm(yearGr);
+		this.addToForm(yearGrC);
 
-		this.layoutForm(5, 3);
+		this.layoutForm(7, 3);
+		this.pack();
+
+		// Birth filtering
+		JLabel yearLoL = new JLabel("Year ≤");
+		yearLo = new JSpinner(new SpinnerNumberModel((int)Calendar.getInstance().get(Calendar.YEAR)-10, 0, (int)Calendar.getInstance().get(Calendar.YEAR)+1, 1));
+		yearLo.setEditor(new JSpinner.NumberEditor(yearLo, "#"));
+		yearLo.setEnabled(false);
+		final JCheckBox yearLoC = new JCheckBox();
+		yearLoC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				yearLo.setEnabled(yearLoC.isSelected());
+			}
+		});
+		this.addToForm(yearLoL);
+		this.addToForm(yearLo);
+		this.addToForm(yearLoC);
+
+		this.layoutForm(8, 3);
 		this.pack();
 	}
 
@@ -130,7 +173,81 @@ public class StudentsReport extends BasicReport{
 						"FROM student s " +
 						"LEFT JOIN people p ON s.people_id = p.people_id " +
 						"LEFT JOIN group_ g ON g.group_id = s.group_id";
+
+		ArrayList<String> where = new ArrayList<String>();
+		if(this.group.isEnabled()) {
+			String[] groups = this.group.getText().split(",");
+			for(int i = 0; i < groups.length; i++) {
+				try {
+					groups[i] = groups[i].trim();
+					Integer.parseInt(groups[i]);
+				} catch (NumberFormatException e) {
+					JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Invalid group list format", JOptionPane.ERROR_MESSAGE);
+					return null;
+				}
+			}
+			where.add(String.format("group_number IN (%s)", this.joinStrings(groups, ", ")));
+		}
+
+		if(this.grade.isEnabled()) {
+			Object grade = this.grade.getSelectedForeignKey();
+			if(grade != null) {
+				where.add(String.format("COURSE_ID = %s", grade));
+			}
+		}
+
+		if(this.childGr.isEnabled()) {
+			int childGr = (Integer)this.childGr.getValue();
+			where.add(String.format("people_children_number >= %d", childGr));
+		}
+
+		if(this.childLo.isEnabled()) {
+			int childLo = (Integer)this.childLo.getValue();
+			where.add(String.format("people_children_number <= %d", childLo));
+		}
+
+		if(this.stipendGr.isEnabled()) {
+			int stipendGr = (Integer) this.stipendGr.getValue();
+			where.add(String.format("student_stipend >= %d", stipendGr));
+		}
+
+		if(this.stipendLo.isEnabled()) {
+			int stipendLo = (Integer) this.stipendLo.getValue();
+			where.add(String.format("student_stipend <= %d", stipendLo));
+		}
+
+		if(this.yearGr.isEnabled()) {
+			int yearGr = (Integer) this.yearGr.getValue();
+			where.add(String.format("people_birth >= TO_DATE('%d', 'YYYY')", yearGr));
+		}
+
+		if(this.yearLo.isEnabled()) {
+			int yearLo = (Integer) this.yearLo.getValue();
+			where.add(String.format("people_birth < TO_DATE('%d', 'YYYY')", yearLo+1));
+		}
+
+		if(where.size() > 0) {
+			sql = String.format("%s WHERE %s", sql, this.joinStrings(where, " AND "));
+		}
+		
 		query.setCommand(sql);
 		return query;
+	}
+
+	private String joinStrings(String[] strings, String delimiter) {
+		StringBuilder joined = new StringBuilder();
+		for(int i = 0; i < strings.length; i++) {
+			if(i > 0) {
+				joined.append(delimiter);
+			}
+			joined.append(strings[i]);
+		}
+		return joined.toString();
+	}
+
+	private String joinStrings(ArrayList<String> strings, String delimiter) {
+		String[] s = new String[strings.size()];
+		strings.toArray(s);
+		return this.joinStrings(s, delimiter);
 	}
 }

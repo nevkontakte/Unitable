@@ -127,6 +127,9 @@ public class MainFrame extends JFrame{
 			public void run() {
 				try {
 					UnitableRowSet rowSet = dialog.buildQuery();
+					if(rowSet == null) {
+						return;
+					}
 					rowSet.executeOnce();
 					final RowSetView component = new RowSetView(rowSet);
 					SwingUtilities.invokeLater(new Runnable() {
