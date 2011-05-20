@@ -3,6 +3,7 @@ package com.nevkontakte.unitable.client;
 import com.nevkontakte.unitable.client.reports.BasicReport;
 import com.nevkontakte.unitable.client.reports.ReportParametersDialog;
 import com.nevkontakte.unitable.client.reports.StudentsReport;
+import com.nevkontakte.unitable.client.reports.TeachersReport;
 import com.nevkontakte.unitable.model.DatabaseModel;
 import com.nevkontakte.unitable.model.TableData;
 import com.nevkontakte.unitable.model.TableModel;
@@ -74,6 +75,11 @@ public class MainFrame extends JFrame{
 		reportMenu.add(new JMenuItem(new ReportShowAction(new BasicReport(this, this.db))));
 		try {
 			reportMenu.add(new JMenuItem(new ReportShowAction(new StudentsReport(this, this.db))));
+		} catch (SQLException e) {
+			// Ignore buggy report
+		}
+		try {
+			reportMenu.add(new JMenuItem(new ReportShowAction(new TeachersReport(this, this.db))));
 		} catch (SQLException e) {
 			// Ignore buggy report
 		}
