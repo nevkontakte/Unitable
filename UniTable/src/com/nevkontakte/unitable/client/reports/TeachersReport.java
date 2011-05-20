@@ -1,6 +1,8 @@
 package com.nevkontakte.unitable.client.reports;
 
 import com.nevkontakte.unitable.client.RowSetComboBoxModel;
+import com.nevkontakte.unitable.model.TableData;
+import com.nevkontakte.unitable.model.TableModel;
 import com.nevkontakte.unitable.model.UnitableRowSet;
 import com.nevkontakte.unitable.view.UnitableFkSelector;
 
@@ -25,15 +27,75 @@ public class TeachersReport extends BasicReport{
 	private UnitableFkSelector grade;
 	private JSpinner childGr;
 	private JSpinner childLo;
-	private JSpinner stipendGr;
-	private JSpinner stipendLo;
+	private JSpinner salaryGr;
+	private JSpinner salaryLo;
 	private JSpinner yearGr;
 	private JSpinner yearLo;
 	private JComboBox gender;
+	private UnitableFkSelector faculty;
+	private UnitableFkSelector department;
 
 	public TeachersReport(Window parent, Connection db) throws SQLException {
 		super(parent, db);
 		this.hidden = false;
+
+		// Faculty filtering
+		JLabel facultyL = new JLabel("Faculty:");
+		this.faculty = new UnitableFkSelector(new TableData(TableModel.get(db, "FACULTY")));
+		faculty.setSelectedIndex(0);
+		faculty.setEnabled(false);
+		final JCheckBox facultyC = new JCheckBox();
+		facultyC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				faculty.setEnabled(facultyC.isSelected());
+			}
+		});
+		this.addToForm(facultyL);
+		this.addToForm(faculty);
+		this.addToForm(facultyC);
+
+		// Faculty filtering
+		JLabel departmentL = new JLabel("Department:");
+		this.department = new UnitableFkSelector(new TableData(TableModel.get(db, "DEPARTMENT")));
+		department.setSelectedIndex(0);
+		department.setEnabled(false);
+		final JCheckBox departmentC = new JCheckBox();
+		departmentC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				department.setEnabled(departmentC.isSelected());
+			}
+		});
+		this.addToForm(departmentL);
+		this.addToForm(department);
+		this.addToForm(departmentC);
+
+		// Salary filtering
+		JLabel salaryGrL = new JLabel("Salary ≥");
+		salaryGr = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 100));
+		salaryGr.setEnabled(false);
+		final JCheckBox salaryGrC = new JCheckBox();
+		salaryGrC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				salaryGr.setEnabled(salaryGrC.isSelected());
+			}
+		});
+		this.addToForm(salaryGrL);
+		this.addToForm(salaryGr);
+		this.addToForm(salaryGrC);
+
+		// Salary filtering
+		JLabel salaryLoL = new JLabel("Salary ≤");
+		salaryLo = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 100));
+		salaryLo.setEnabled(false);
+		final JCheckBox salaryLoC = new JCheckBox();
+		salaryLoC.setAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				salaryLo.setEnabled(salaryLoC.isSelected());
+			}
+		});
+		this.addToForm(salaryLoL);
+		this.addToForm(salaryLo);
+		this.addToForm(salaryLoC);
 
 		// Gender filtering
 		UnitableRowSet genders = new UnitableRowSet(db);
@@ -109,7 +171,7 @@ public class TeachersReport extends BasicReport{
 		this.addToForm(yearLo);
 		this.addToForm(yearLoC);
 
-		this.layoutForm(5, 3);
+		this.layoutForm(9, 3);
 		this.pack();
 	}
 
@@ -123,7 +185,7 @@ public class TeachersReport extends BasicReport{
 		UnitableRowSet query = new UnitableRowSet(db);
 		query.setType(JdbcRowSet.TYPE_SCROLL_INSENSITIVE);
 		String sql =
-				"SELECT people_fname, people_mname, people_lname, people_gender, people_birth, people_children_number, teacher_salary, teacher_rank_type_title, department_title, faculty_title " +
+				"SELECT people_fname, people_mname, people_lname, people_gender, people_birth, people_children_number, teacher_department_salary, teacher_rank_type_title, department_title, faculty_title " +
 						"FROM teacher t " +
 						"LEFT JOIN people p ON t.people_id = p.people_id " +
 						"LEFT JOIN teacher_rank tr ON t.teacher_id = tr.teacher_id " +
@@ -156,6 +218,26 @@ public class TeachersReport extends BasicReport{
 		if(this.gender.isEnabled()) {
 			String gender = this.gender.getSelectedItem().toString().replace("'", "\\'");
 			where.add(String.format("people_gender = '%s'", gender));
+		}
+
+		if(this.salaryGr.isEnabled()) {
+			int salaryGr = (Integer) this.salaryGr.getValue();
+			where.add(String.format("teacher_department_salary >= %d", salaryGr));
+		}
+
+		if(this.salaryLo.isEnabled()) {
+			int salaryLo = (Integer) this.salaryLo.getValue();
+			where.add(String.format("teacher_department_salary <= %d", salaryLo));
+		}
+
+		if(this.faculty.isEnabled()) {
+			Integer faculty = (Integer) this.faculty.getSelectedForeignKey();
+			where.add(String.format("faculty_id = %d", faculty));
+		}
+
+		if(this.department.isEnabled()) {
+			Integer department = (Integer) this.department.getSelectedForeignKey();
+			where.add(String.format("department_id = %d", department));
 		}
 
 		if(where.size() > 0) {
