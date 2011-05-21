@@ -114,8 +114,18 @@ public class MainFrame extends JFrame{
 	}
 
 	protected void onExit() {
-		this.setVisible(true);
+		this.setVisible(false);
 		this.dispose();
+		try {
+			this.db.close();
+		} catch (SQLException e) {
+			System.err.println(e.getLocalizedMessage());
+		}
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+		}
+		System.exit(0);
 	}
 
 	protected void onTableEdit(final TableModel model) {
