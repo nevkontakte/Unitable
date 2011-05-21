@@ -27,6 +27,7 @@ public class ConnectionDialog extends JDialog{
 	private Connection connection = null;
 	private String url;
 	private Properties props;
+	private JTextField urlField;
 
 	public ConnectionDialog(String url, Properties props) {
 		this.url = url;
@@ -46,12 +47,56 @@ public class ConnectionDialog extends JDialog{
 		this.login.addKeyListener(submitter);
 		this.password.addKeyListener(submitter);
 
-		JPanel mainPanel = new JPanel(new SpringLayout());
-		mainPanel.add(new JLabel("Login"));
-		mainPanel.add(this.login);
-		mainPanel.add(new JLabel("Password"));
-		mainPanel.add(this.password);
-		SpringUtilities.makeCompactGrid(mainPanel, 2, 2, FIELD_PADDING, FIELD_PADDING, FIELD_PADDING, FIELD_PADDING);
+		final JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+
+		JPanel loginPanel = new JPanel(new SpringLayout());
+		loginPanel.add(new JLabel("Login"));
+		loginPanel.add(this.login);
+		loginPanel.add(new JLabel("Password"));
+		loginPanel.add(this.password);
+		SpringUtilities.makeCompactGrid(loginPanel, 2, 2, FIELD_PADDING, FIELD_PADDING, FIELD_PADDING, FIELD_PADDING);
+		mainPanel.add(loginPanel);
+
+		JPanel advancedPanel = new JPanel(new BorderLayout());
+
+		final JPanel advancedOptions = new JPanel(new SpringLayout());
+		advancedOptions.setVisible(false);
+		advancedOptions.add(new JLabel("Connection URL:"));
+		urlField = new JTextField(this.url);
+		urlField.setColumns(15);
+		advancedOptions.add(urlField);
+		SpringUtilities.makeCompactGrid(advancedOptions, 1, 2, FIELD_PADDING, FIELD_PADDING, FIELD_PADDING, FIELD_PADDING);
+		advancedPanel.add(advancedOptions, BorderLayout.CENTER);
+
+		JButton toggleAdvanced = new JButton();
+		toggleAdvanced.setAction(new AbstractAction() {
+			private Icon collapsed = new ImageIcon(getClass().getResource("resources/collapsed.png"));
+			private Icon expanded = new ImageIcon(getClass().getResource("resources/expanded.png"));
+			{
+				this.putValue(AbstractAction.NAME, "Advanced");
+				this.putValue(AbstractAction.SMALL_ICON, collapsed);
+			}
+			public void actionPerformed(ActionEvent e) {
+				if(advancedOptions.isVisible()) {
+					advancedOptions.setVisible(false);
+					this.putValue(AbstractAction.SMALL_ICON, collapsed);
+				} else {
+					advancedOptions.setVisible(true);
+					this.putValue(AbstractAction.SMALL_ICON, expanded);
+				}
+				mainPanel.revalidate();
+				mainPanel.repaint();
+				setSize(getWidth(), getPreferredSize().height);
+			}
+		});
+		toggleAdvanced.setHorizontalAlignment(SwingConstants.LEFT);
+		toggleAdvanced.setFocusPainted(false);
+		toggleAdvanced.setBorderPainted(false);
+		advancedPanel.add(toggleAdvanced, BorderLayout.NORTH);
+
+		mainPanel.add(advancedPanel);
+
 		this.add(mainPanel);
 
 		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, FIELD_PADDING, FIELD_PADDING));
@@ -79,7 +124,7 @@ public class ConnectionDialog extends JDialog{
 		try {
 			this.props.put("user", this.login.getText());
 			this.props.put("password", String.valueOf(this.password.getPassword()));
-			this.connection = DriverManager.getConnection(this.url, props);
+			this.connection = DriverManager.getConnection(this.urlField.getText(), props);
 		} catch (SQLException e) {
 			// TODO: Add details to error message
 			System.err.println(e.getLocalizedMessage());

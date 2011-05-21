@@ -196,12 +196,12 @@ public class TableModel {
 
 	private static HashMap<String, TableModel> models = new HashMap<String, TableModel>();
 	public static TableModel get(Connection db, String tableName) throws SQLException {
-		tableName = tableName.toUpperCase();
+		String tableNameKey = tableName.toUpperCase();
 		if(models.containsKey(tableName)) {
-			return models.get(tableName);
+			return models.get(tableNameKey);
 		}
 		TableModel model = new TableModel(db, tableName);
-		models.put(tableName, model);
+		models.put(tableNameKey, model);
 		return model;
 	}
 }

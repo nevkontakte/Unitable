@@ -1,7 +1,5 @@
 package com.nevkontakte.unitable.client;
 
-import oracle.jdbc.OracleDriver;
-
 import javax.swing.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -23,7 +21,16 @@ public class ClientMain {
 		}
 
 		Locale.setDefault(Locale.ENGLISH);
-		DriverManager.registerDriver(new OracleDriver());
+		try{
+			DriverManager.registerDriver(new oracle.jdbc.OracleDriver());
+		} catch (Exception e) {
+			System.err.println(e.getLocalizedMessage());
+		}
+		try{
+			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+		} catch (Exception e) {
+			System.err.println(e.getLocalizedMessage());
+		}
 		Properties props = new Properties();
 		props.put("useUnicode","true");
 		props.put("remarks", "true");
