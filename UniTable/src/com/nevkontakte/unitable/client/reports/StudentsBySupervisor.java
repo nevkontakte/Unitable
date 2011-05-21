@@ -30,7 +30,9 @@ public class StudentsBySupervisor extends BasicReport{
 		JLabel supervisorL = new JLabel("Supervisor:");
 		this.supervisor = new UnitableFkSelector(new TableData(TableModel.get(db, "TEACHER")));
 		this.supervisor.setEnabled(false);
-		this.supervisor.setSelectedIndex(0);
+		if(this.supervisor.getItemCount() > 0) {
+			this.supervisor.setSelectedIndex(0);
+		}
 		final JCheckBox supervisorC = new JCheckBox();
 		supervisorC.setAction(new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -44,7 +46,9 @@ public class StudentsBySupervisor extends BasicReport{
 		// Department filtering
 		JLabel departmentL = new JLabel("Department:");
 		this.department = new UnitableFkSelector(new TableData(TableModel.get(db, "DEPARTMENT")));
-		department.setSelectedIndex(0);
+		if(this.department.getItemCount() > 0) {
+			department.setSelectedIndex(0);
+		}
 		department.setEnabled(false);
 		final JCheckBox departmentC = new JCheckBox();
 		departmentC.setAction(new AbstractAction() {

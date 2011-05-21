@@ -47,7 +47,9 @@ public class Examinators extends BasicReport{
 		JLabel subjectL = new JLabel("Subject:");
 		this.subject = new UnitableFkSelector(new TableData(TableModel.get(db, "SUBJECT")));
 		this.subject.setEnabled(false);
-		this.subject.setSelectedIndex(0);
+		if(this.subject.getItemCount() > 0) {
+			this.subject.setSelectedIndex(0);
+		}
 		final JCheckBox subjectC = new JCheckBox();
 		subjectC.setAction(new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
